@@ -71,6 +71,8 @@ changelog:
 
 release:
   header: |
+    ![helperpad](https://raw.githubusercontent.com/DrianeDiojanPerez/helperpad/master/assets/banner.png)
+
     ## helperpad {{ .Tag }}
 
     Topaz signature pads in Chrome on Linux. Already installed? Run `helperpad update`.

@@ -10,7 +10,19 @@ Chrome starts `helperpad` as the native messaging host `com.topaz.sigplusextlite
 
 Built for the Topaz T-L460-HSB-R (USB ID `06a8:0043`).
 
-## Install
+## Install from a release
+
+Download the package for your system from the [releases page](https://github.com/DrianeDiojanPerez/helperpad/releases) and install it:
+
+| System | Command |
+|---|---|
+| Ubuntu, Debian | `sudo apt install ./helperpad_*_linux_amd64.deb` |
+| Fedora | `sudo dnf install ./helperpad_*_linux_amd64.rpm` |
+| Arch | `sudo pacman -U helperpad_*_linux_amd64.pkg.tar.zst` |
+
+The package installs `/usr/bin/helperpad`, the pad's udev rule, and the Chrome and Chromium registration for all users. Afterwards replug the pad, add the [Topaz SigPlusExtLite extension](https://chromewebstore.google.com/detail/topaz-sigplusextlite-exte/dhcpobccjkdnmibckgpejmbpmpembgco) in Chrome, and restart Chrome. `arm64` packages and plain `tar.gz` archives are on the same page.
+
+## Install from source
 
 Plug in the pad and run:
 
@@ -28,6 +40,8 @@ It does everything, skips whatever is already done, and asks for your sudo passw
 6. Prints a summary (`make status`).
 
 Then close Chrome completely and open it again. `make setup` and `just setup` run the same script.
+
+Tested on Arch and Ubuntu 24.04. On Ubuntu, use Google Chrome from Google's .deb (https://www.google.com/chrome/): Ubuntu's Chromium is a Snap, and its sandbox blocks helperpad. helperpad needs Rust 1.95 or newer; the script installs or updates it through rustup if needed.
 
 ### Manual install
 
@@ -134,7 +148,21 @@ Start with `make status`, then `make logs`.
 - **"Can't read the pad" or `make status` says no access:** the udev rule is missing or not applied. Do step 1 of Install, then replug the pad.
 - **Page says the extension isn't installed:** install it from the link in step 3 and reload the page.
 
+## Releasing
+
+Releases are built with [GoReleaser](https://goreleaser.com) from `.goreleaser.yaml`. It needs `goreleaser`, `cargo-zigbuild`, and `zig`.
+
+```
+make add-version VERSION=0.1.0   # bump Cargo.toml, commit, and tag v0.1.0
+git push --follow-tags
+GITHUB_TOKEN=... make release    # build and publish to GitHub
+```
+
+`make dry-release` builds everything into `dist/` without publishing. Each release has `.deb`, `.rpm`, and Arch packages plus `tar.gz` archives, for x86_64 and arm64. The binaries link against glibc 2.31, so they run on Ubuntu 20.04 and newer, Debian 11+, Fedora, and Arch.
+
 ## Uninstall
+
+If you installed a package, remove it with your package manager (`sudo apt remove helperpad`, `sudo dnf remove helperpad`, or `sudo pacman -R helperpad`). If you installed from source:
 
 ```
 make uninstall

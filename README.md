@@ -60,8 +60,6 @@ To find out about new releases, helperpad asks GitHub for the latest version num
 ## Test
 
 - Open Topaz's demo at https://sigplusweb.com/sign_chrome_ff_sigplusextlite.html, click **Sign**, sign on the pad, and press **OK**. The signature shows up on the page, with the SigString in the left box.
-- `make window` opens only the signing window, without Chrome.
-- `make check-sigstring FILE=sigstring.txt` loads a SigString into Topaz's own SigPlus Java library and prints what it reads back. Run it without `FILE` to paste one instead. Add `OUT=drawing.png` to save Topaz's drawing of it.
 
 ## Make commands
 

@@ -27,19 +27,19 @@ The package installs `/usr/bin/helperpad`, the pad's udev rule, and the Chrome a
 Plug in the pad and run:
 
 ```
-./setup.sh
+make install
 ```
 
 It does everything, skips whatever is already done, and asks for your sudo password when it needs it:
 
 1. Installs missing build tools (C compiler, `make`), Rust (through rustup), and the window libraries, using pacman, apt, dnf, or zypper.
 2. Gives your user access to the pad with a udev rule. The pad needs no driver: the Linux kernel's built-in HID driver already runs it, but by default only root can read it.
-3. Builds helperpad, installs it, and registers it with Chrome (`make install`).
+3. Builds helperpad, installs it to `~/.local/bin/helperpad`, and registers it with Chrome.
 4. Checks the pad is plugged in and readable, and waits up to 60 seconds for you to replug it if needed.
 5. Opens the Chrome Web Store page for the Topaz SigPlusExtLite extension if it isn't installed.
 6. Prints a summary (`make status`).
 
-Then close Chrome completely and open it again. `make setup` and `just setup` run the same script.
+Then close Chrome completely and open it again. `./install.sh` and `just install` do the same thing. Run it again after you change the code; steps that are already done are skipped.
 
 Tested on Arch and Ubuntu 24.04. On Ubuntu, use Google Chrome from Google's .deb (https://www.google.com/chrome/): Ubuntu's Chromium is a Snap, and its sandbox blocks helperpad. helperpad needs Rust 1.95 or newer; the script installs or updates it through rustup if needed.
 
@@ -54,12 +54,23 @@ Tested on Arch and Ubuntu 24.04. On Ubuntu, use Google Chrome from Google's .deb
    sudo udevadm control --reload && sudo udevadm trigger
    ```
    Then unplug the pad and plug it back in.
-2. Build, install, and register with Chrome:
+2. Build and install the binary:
    ```
-   make install
+   cargo build --release
+   install -Dm755 target/release/helperpad ~/.local/bin/helperpad
    ```
-3. Install the [Topaz SigPlusExtLite extension](https://chromewebstore.google.com/detail/topaz-sigplusextlite-exte/dhcpobccjkdnmibckgpejmbpmpembgco) in Chrome.
-4. Close Chrome completely and open it again. Do this after every `make install`, because a helper that's already running keeps the old version.
+3. Register it with Chrome by saving this as `~/.config/google-chrome/NativeMessagingHosts/com.topaz.sigplusextlite.win.2.json` (use `chromium` in the path for Chromium), with your own home folder in `path`:
+   ```
+   {
+     "name": "com.topaz.sigplusextlite.win.2",
+     "description": "helperpad: Topaz SigPlusExtLite host for Linux",
+     "path": "/home/you/.local/bin/helperpad",
+     "type": "stdio",
+     "allowed_origins": ["chrome-extension://dhcpobccjkdnmibckgpejmbpmpembgco/"]
+   }
+   ```
+4. Install the [Topaz SigPlusExtLite extension](https://chromewebstore.google.com/detail/topaz-sigplusextlite-exte/dhcpobccjkdnmibckgpejmbpmpembgco) in Chrome.
+5. Close Chrome completely and open it again. Do this after every install, because a helper that's already running keeps the old version.
 
 Run `make status` to check that everything is in place.
 
@@ -76,7 +87,7 @@ Every command also works with [`just`](https://github.com/casey/just): `just ins
 | Command | What it does |
 |---|---|
 | `make` | List the commands |
-| `make install` | Build, install the binary, and register it with Chrome |
+| `make install` | Set up everything: tools, pad access, helperpad, Chrome registration, extension check |
 | `make uninstall` | Remove the binary and the Chrome registration (keeps the log) |
 | `make status` | Show the binary, Chrome registration, extension, pad, udev rule, and log |
 | `make logs` | Show the last 50 log lines |
@@ -145,8 +156,8 @@ Start with `make status`, then `make logs`.
 - **Nothing in the log after clicking Sign:** Chrome isn't starting helperpad. Check `make status` shows it registered and the extension installed, then restart Chrome fully.
 - **"could not open the signing window: No such file or directory":** a helper from before your last `make install` is still running. Restart Chrome.
 - **"No Topaz signature pad found":** the pad isn't plugged in. Check `lsusb | grep 06a8`.
-- **"Can't read the pad" or `make status` says no access:** the udev rule is missing or not applied. Do step 1 of Install, then replug the pad.
-- **Page says the extension isn't installed:** install it from the link in step 3 and reload the page.
+- **"Can't read the pad" or `make status` says no access:** the udev rule is missing or not applied. Run `make install`, then replug the pad.
+- **Page says the extension isn't installed:** install it from the link in Manual install and reload the page.
 
 ## Releasing
 

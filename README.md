@@ -1,17 +1,5 @@
 <p align="center"><img src="assets/banner.png" alt="helperpad: Topaz signature pads in Chrome on Linux" width="100%"></p>
 
-# helperpad
-
-A Linux stand-in for Topaz's Windows-only SigPlusExtLite helper. With it, websites that use the Topaz SigPlusExtLite browser extension can capture signatures from a Topaz HSB pad on Linux.
-
-```
-Website → SigPlusExtLite extension → helperpad → Topaz pad (/dev/hidrawN)
-```
-
-Chrome starts `helperpad` as the native messaging host `com.topaz.sigplusextlite.win.2`. When a page asks for a signature, helperpad opens a signing window with live ink and Clear / OK / Cancel buttons, then sends the signature back to the page.
-
-Built for the Topaz T-L460-HSB-R (USB ID `06a8:0043`).
-
 ## Install
 
 ```
@@ -19,18 +7,6 @@ curl -fsSL https://raw.githubusercontent.com/DrianeDiojanPerez/helperpad/master/
 ```
 
 This downloads the newest release for your system, checks it against the release's checksum, and installs it with `apt-get`, `dnf`, `zypper`, or `pacman` (it asks for your sudo password). On other systems it puts the binary in `~/.local/bin` and sets up Chrome and the pad's udev rule itself. Then replug the pad, add the [Topaz SigPlusExtLite extension](https://chromewebstore.google.com/detail/topaz-sigplusextlite-exte/dhcpobccjkdnmibckgpejmbpmpembgco) in Chrome, and restart Chrome.
-
-### Install a package by hand
-
-Or download the package for your system from the [releases page](https://github.com/DrianeDiojanPerez/helperpad/releases) and install it:
-
-| System | Command |
-|---|---|
-| Ubuntu, Debian | `sudo apt install ./helperpad_*_linux_amd64.deb` |
-| Fedora | `sudo dnf install ./helperpad_*_linux_amd64.rpm` |
-| Arch | `sudo pacman -U helperpad_*_linux_amd64.pkg.tar.zst` |
-
-The package installs `/usr/bin/helperpad`, the pad's udev rule, and the Chrome and Chromium registration for all users. Afterwards replug the pad, add the [Topaz SigPlusExtLite extension](https://chromewebstore.google.com/detail/topaz-sigplusextlite-exte/dhcpobccjkdnmibckgpejmbpmpembgco) in Chrome, and restart Chrome. `arm64` packages and plain `tar.gz` archives are on the same page.
 
 ## Install from source
 

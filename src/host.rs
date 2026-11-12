@@ -1,6 +1,4 @@
-use std::env;
 use std::io::{self, Read, Write};
-use std::path::PathBuf;
 use std::process::{Command, Stdio};
 use std::time::{SystemTime, UNIX_EPOCH};
 
@@ -168,14 +166,7 @@ fn standard_utc_offset() -> i32 {
 /// The window runs in a child process because a process can only open one GUI event loop,
 /// while this host stays alive for many signatures.
 fn run_signing_window(device: &str, min_points: u64) -> Result<Option<Vec<Vec<Point>>>, String> {
-    // After a reinstall, `current_exe` names the deleted old binary while the path Chrome launched still works.
-    let exe = env::args_os()
-        .next()
-        .map(PathBuf::from)
-        .filter(|path| path.is_absolute() && path.exists())
-        .map_or_else(env::current_exe, Ok)
-        .map_err(|e| e.to_string())?;
-    let output = Command::new(exe)
+    let output = Command::new(crate::own_path()?)
         .args(["--sign", device, &min_points.to_string()])
         .stdin(Stdio::null())
         .stderr(Stdio::inherit())

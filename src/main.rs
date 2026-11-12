@@ -4,6 +4,7 @@ mod pad;
 mod rawdata;
 mod render;
 mod sigstring;
+mod update;
 mod window;
 
 use std::env;
@@ -17,9 +18,19 @@ fn main() -> ExitCode {
 
     match args.get(1).map(String::as_str) {
         Some("--sign") => sign(&args[2..]),
+        Some("update") => update::run(&args[2..]),
+        Some("--version" | "-V") => {
+            println!("helperpad {}", update::CURRENT);
+            ExitCode::SUCCESS
+        }
         Some("--help" | "-h") => {
             println!("helperpad: Topaz SigPlusExtLite native messaging host for Linux.");
-            println!("Chrome starts it on its own. Run `helperpad --sign` to test the signing window.");
+            println!("Chrome starts it on its own.");
+            println!();
+            println!("  helperpad --sign          open the signing window to test the pad");
+            println!("  helperpad update          download and install the newest version");
+            println!("  helperpad update --check  only say whether a newer version exists");
+            println!("  helperpad --version       print the version");
             ExitCode::SUCCESS
         }
         _ => {
@@ -33,6 +44,16 @@ fn main() -> ExitCode {
             }
         }
     }
+}
+
+/// After a reinstall, `current_exe` names the deleted old binary while the path Chrome launched still works.
+pub fn own_path() -> Result<PathBuf, String> {
+    env::args_os()
+        .next()
+        .map(PathBuf::from)
+        .filter(|path| path.is_absolute() && path.exists())
+        .map_or_else(env::current_exe, Ok)
+        .map_err(|e| e.to_string())
 }
 
 /// Child mode: shows the signing window and prints the strokes as JSON on stdout.

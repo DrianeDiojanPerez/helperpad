@@ -1,4 +1,5 @@
 mod pad;
+mod render;
 
 fn main() {
     match pad::find() {

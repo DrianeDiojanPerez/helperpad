@@ -10,8 +10,16 @@ use crate::{log, pad};
 const HOST_NAME: &str = "com.topaz.sigplusextlite.win.2";
 const EXTENSION_ID: &str = "dhcpobccjkdnmibckgpejmbpmpembgco";
 const STORE_URL: &str = "https://chromewebstore.google.com/detail/topaz-sigplusextlite-exte/dhcpobccjkdnmibckgpejmbpmpembgco";
+const FIREFOX_EXTENSION_ID: &str = "sigplusextliteff@topazsystems.com";
+const FIREFOX_URL: &str = "https://addons.mozilla.org/firefox/addon/topaz-sigplusextlite-extension/";
+const FIREFOX_HOMES: [&str; 5] = [".mozilla", ".zen", ".librewolf", ".floorp", ".waterfox"];
 const UDEV_RULES: [&str; 2] = ["/etc/udev/rules.d/70-topaz-sigpad.rules", "/usr/lib/udev/rules.d/70-topaz-sigpad.rules"];
-const SYSTEM_MANIFEST_DIRS: [&str; 2] = ["/etc/opt/chrome/native-messaging-hosts", "/etc/chromium/native-messaging-hosts"];
+const SYSTEM_MANIFEST_DIRS: [&str; 4] = [
+    "/etc/opt/chrome/native-messaging-hosts",
+    "/etc/chromium/native-messaging-hosts",
+    "/usr/lib/mozilla/native-messaging-hosts",
+    "/usr/lib64/mozilla/native-messaging-hosts",
+];
 
 pub fn status() -> ExitCode {
     // Lets `helperpad status | head` end quietly instead of failing on the closed pipe.
@@ -24,16 +32,26 @@ pub fn status() -> ExitCode {
 
     let manifests = manifests();
     if manifests.is_empty() {
-        row("chrome", "not registered (install helperpad again)".to_string());
+        row("browser", "not registered (install helperpad again)".to_string());
     }
     for manifest in manifests {
-        row("chrome", format!("registered ({})", manifest.display()));
+        let browser = if is_firefox_manifest(&manifest) { "firefox" } else { "chrome" };
+        row(browser, format!("registered ({})", manifest.display()));
     }
 
-    row("extension", match extension_installed() {
-        true => "installed".to_string(),
-        false => format!("not found in Chrome ({STORE_URL})"),
-    });
+    match (chrome_extension_installed(), firefox_extension_installed()) {
+        (false, false) => {
+            row("extension", format!("not found. Chrome: {STORE_URL}"));
+            println!("{:<11} Firefox: {FIREFOX_URL}", "");
+        }
+        (chrome, firefox) => {
+            let browsers: Vec<&str> = [(chrome, "Chrome"), (firefox, "Firefox")]
+                .into_iter()
+                .filter_map(|(installed, browser)| installed.then_some(browser))
+                .collect();
+            row("extension", format!("installed in {}", browsers.join(" and ")));
+        }
+    }
 
     row("pad", match pad::find() {
         None => "not plugged in".to_string(),
@@ -143,16 +161,24 @@ fn config_dir() -> Option<PathBuf> {
         .or_else(|| std::env::var_os("HOME").map(|home| PathBuf::from(home).join(".config")))
 }
 
-fn user_manifests() -> Vec<PathBuf> {
-    let Some(config) = config_dir() else {
-        return Vec::new();
-    };
+fn home() -> Option<PathBuf> {
+    std::env::var_os("HOME").map(PathBuf::from)
+}
 
-    ["google-chrome", "chromium"]
-        .iter()
-        .map(|browser| config.join(browser).join("NativeMessagingHosts").join(format!("{HOST_NAME}.json")))
-        .filter(|manifest| manifest.exists())
-        .collect()
+fn is_firefox_manifest(manifest: &Path) -> bool {
+    manifest.parent().is_some_and(|dir| dir.ends_with("native-messaging-hosts") && !dir.starts_with("/etc"))
+}
+
+fn user_manifests() -> Vec<PathBuf> {
+    let file = format!("{HOST_NAME}.json");
+    let chrome = config_dir().into_iter().flat_map(|config| {
+        ["google-chrome", "chromium"].map(|browser| config.join(browser).join("NativeMessagingHosts"))
+    });
+    let firefox = home()
+        .into_iter()
+        .flat_map(|home| FIREFOX_HOMES.map(|dir| home.join(dir).join("native-messaging-hosts")));
+
+    chrome.chain(firefox).map(|dir| dir.join(&file)).filter(|manifest| manifest.exists()).collect()
 }
 
 fn manifests() -> Vec<PathBuf> {
@@ -161,17 +187,41 @@ fn manifests() -> Vec<PathBuf> {
         .map(|dir| Path::new(dir).join(format!("{HOST_NAME}.json")))
         .filter(|manifest| manifest.exists());
 
-    user_manifests().into_iter().chain(system).collect()
+    // On Arch /usr/lib64 is a link to /usr/lib, so the same file would show up twice.
+    let mut seen = Vec::new();
+    user_manifests()
+        .into_iter()
+        .chain(system)
+        .filter(|manifest| {
+            let real = fs::canonicalize(manifest).unwrap_or_else(|_| manifest.clone());
+            let new = !seen.contains(&real);
+            seen.push(real);
+            new
+        })
+        .collect()
+}
+
+fn subdirs(dir: PathBuf) -> impl Iterator<Item = PathBuf> {
+    fs::read_dir(dir).into_iter().flatten().flatten().map(|entry| entry.path())
 }
 
 /// Chrome keeps extensions under `<browser>/<profile>/Extensions/<id>`.
-fn extension_installed() -> bool {
-    let Some(config) = config_dir() else {
-        return false;
-    };
-    let subdirs = |dir: PathBuf| fs::read_dir(dir).into_iter().flatten().flatten().map(|entry| entry.path());
+fn chrome_extension_installed() -> bool {
+    config_dir().is_some_and(|config| {
+        subdirs(config)
+            .flat_map(subdirs)
+            .any(|profile| profile.join("Extensions").join(EXTENSION_ID).is_dir())
+    })
+}
 
-    subdirs(config)
-        .flat_map(subdirs)
-        .any(|profile| profile.join("Extensions").join(EXTENSION_ID).is_dir())
+/// Firefox keeps them under `<profile>/extensions/<id>.xpi`, with profiles one or two folders down.
+fn firefox_extension_installed() -> bool {
+    let has_extension = |profile: &PathBuf| profile.join("extensions").join(format!("{FIREFOX_EXTENSION_ID}.xpi")).exists();
+
+    home().is_some_and(|home| {
+        FIREFOX_HOMES.iter().any(|dir| {
+            let folders: Vec<PathBuf> = subdirs(home.join(dir)).collect();
+            folders.iter().any(has_extension) || folders.into_iter().flat_map(subdirs).any(|profile| has_extension(&profile))
+        })
+    })
 }

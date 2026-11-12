@@ -31,8 +31,9 @@ fn main() -> ExitCode {
             print_help();
             ExitCode::SUCCESS
         }
-        // Chrome passes the calling extension as the first argument; anything else is a typo.
-        Some(command) if !command.starts_with("chrome-extension://") => {
+        // Chrome passes the calling extension as the first argument and Firefox the path
+        // of its registration file; anything else is a typo.
+        Some(command) if !command.starts_with("chrome-extension://") && !command.ends_with(".json") => {
             eprintln!("helperpad: unknown command '{command}'");
             eprintln!("Run 'helperpad help' to see the commands.");
             ExitCode::from(2)
@@ -42,7 +43,8 @@ fn main() -> ExitCode {
             ExitCode::SUCCESS
         }
         _ => {
-            log::write(&format!("started by {}", args.get(1).map_or("unknown", String::as_str)));
+            let caller = args.get(2).or(args.get(1)).map_or("unknown", String::as_str);
+            log::write(&format!("started by {caller}"));
             match host::serve() {
                 Ok(()) => ExitCode::SUCCESS,
                 Err(e) => {
@@ -64,7 +66,7 @@ fn print_help() {
     let name = |text: &str| paint("1;36", text);
 
     println!("{} {}", paint("1", "helperpad"), update::CURRENT);
-    println!("Topaz signature pads in Chrome on Linux");
+    println!("Topaz signature pads in Chrome and Firefox on Linux");
     println!();
     println!("{} {} {}", heading("Usage:"), name("helperpad"), paint("36", "<COMMAND>"));
     println!();

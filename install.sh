@@ -8,6 +8,8 @@ cd "$(dirname "$0")"
 
 UDEV_RULE=/etc/udev/rules.d/70-topaz-sigpad.rules
 EXTENSION_ID=dhcpobccjkdnmibckgpejmbpmpembgco
+HOST_NAME=com.topaz.sigplusextlite.win.2
+BIN="$HOME/.local/bin/helperpad"
 STORE_URL="https://chromewebstore.google.com/detail/topaz-sigplusextlite-exte/$EXTENSION_ID"
 DEMO_URL="https://sigplusweb.com/sign_chrome_ff_sigplusextlite.html"
 MIN_RUST_MINOR=95
@@ -104,7 +106,24 @@ fi
 ok "The pad itself needs no driver: the Linux kernel's built-in HID driver runs it"
 
 step 3 "Building and installing helperpad"
-make --no-print-directory install
+cargo build --release
+install -Dm755 target/release/helperpad "$BIN"
+ok "Installed $BIN"
+for browser in google-chrome chromium; do
+    [ -d "$HOME/.config/$browser" ] || continue
+    manifest="$HOME/.config/$browser/NativeMessagingHosts/$HOST_NAME.json"
+    mkdir -p "$(dirname "$manifest")"
+    cat > "$manifest" <<EOF
+{
+  "name": "$HOST_NAME",
+  "description": "helperpad: Topaz SigPlusExtLite host for Linux",
+  "path": "$BIN",
+  "type": "stdio",
+  "allowed_origins": ["chrome-extension://$EXTENSION_ID/"]
+}
+EOF
+    ok "Registered with Chrome: $manifest"
+done
 
 step 4 "Checking the pad"
 dev=$(find_pad)

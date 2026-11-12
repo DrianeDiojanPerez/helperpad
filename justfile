@@ -11,36 +11,8 @@ default:
     @just --list --unsorted
 
 # Set up everything: tools, pad access, helperpad, extension
-setup:
-    ./setup.sh
-
-# Build, install, and register with Chrome
-install: build
-    #!/usr/bin/env bash
-    set -euo pipefail
-    echo "==> [1/3] Installing {{bin}}"
-    install -Dm755 target/release/helperpad "{{bin}}"
-    echo "==> [2/3] Registering with Chrome"
-    for browser in {{browsers}}; do
-        [ -d "$HOME/.config/$browser" ] || continue
-        dir="$HOME/.config/$browser/NativeMessagingHosts"
-        mkdir -p "$dir"
-        cat > "$dir/{{host_name}}.json" <<EOF
-    {
-      "name": "{{host_name}}",
-      "description": "helperpad: Topaz SigPlusExtLite host for Linux",
-      "path": "{{bin}}",
-      "type": "stdio",
-      "allowed_origins": ["chrome-extension://{{extension_id}}/"]
-    }
-    EOF
-        echo "    $dir/{{host_name}}.json"
-    done
-    echo "==> [3/3] Checking pad access"
-    if [ -f "{{udev_rule}}" ]; then echo "    udev rule found"; else echo "    udev rule missing: see Install in README.md"; fi
-    echo ""
-    echo "==> Done. Restart Chrome. If the Topaz extension isn't installed yet, add it first:"
-    echo "    {{store_url}}"
+install:
+    ./install.sh
 
 # Remove the binary and the Chrome registration
 uninstall:

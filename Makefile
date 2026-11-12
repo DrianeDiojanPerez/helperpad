@@ -12,8 +12,7 @@ UDEV_RULE    = /etc/udev/rules.d/70-topaz-sigpad.rules
 help:
 	@echo "helperpad: Topaz signature pad helper for Chrome on Linux"
 	@echo ""
-	@echo "  make setup            set up everything: tools, pad access, helperpad, extension"
-	@echo "  make install          build, install, and register with Chrome"
+	@echo "  make install          set up everything: tools, pad access, helperpad, extension"
 	@echo "  make uninstall        remove the binary and the Chrome registration"
 	@echo "  make status           show what's installed and whether the pad is found"
 	@echo "  make logs             show the last 50 log lines"
@@ -28,32 +27,13 @@ help:
 	@echo "  make dry-release      build every release package into dist/ without publishing"
 	@echo "  make release          publish the tagged version to GitHub (needs GITHUB_TOKEN)"
 
-.PHONY: setup
-setup:
-	@./setup.sh
-
 .PHONY: build
 build:
 	@cargo build --release
 
 .PHONY: install
-install: build
-	@echo "==> [1/3] Installing $(BIN)"
-	@install -Dm755 target/release/helperpad $(BIN)
-	@echo "==> [2/3] Registering with Chrome"
-	@for browser in $(BROWSERS); do \
-		[ -d "$(HOME)/.config/$$browser" ] || continue; \
-		dir="$(HOME)/.config/$$browser/NativeMessagingHosts"; \
-		mkdir -p "$$dir"; \
-		printf '{\n  "name": "%s",\n  "description": "helperpad: Topaz SigPlusExtLite host for Linux",\n  "path": "%s",\n  "type": "stdio",\n  "allowed_origins": ["chrome-extension://%s/"]\n}\n' \
-			"$(HOST_NAME)" "$(BIN)" "$(EXTENSION_ID)" > "$$dir/$(HOST_NAME).json"; \
-		echo "    $$dir/$(HOST_NAME).json"; \
-	done
-	@echo "==> [3/3] Checking pad access"
-	@test -f $(UDEV_RULE) && echo "    udev rule found" || echo "    udev rule missing: see Install in README.md"
-	@echo ""
-	@echo "==> Done. Restart Chrome. If the Topaz extension isn't installed yet, add it first:"
-	@echo "    $(STORE_URL)"
+install:
+	@./install.sh
 
 .PHONY: uninstall
 uninstall:

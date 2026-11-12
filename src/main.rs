@@ -1,3 +1,5 @@
+mod host;
+mod log;
 mod pad;
 mod rawdata;
 mod render;
@@ -21,8 +23,14 @@ fn main() -> ExitCode {
             ExitCode::SUCCESS
         }
         _ => {
-            println!("Run `helperpad --sign` to open the signing window.");
-            ExitCode::SUCCESS
+            log::write(&format!("started by {}", args.get(1).map_or("unknown", String::as_str)));
+            match host::serve() {
+                Ok(()) => ExitCode::SUCCESS,
+                Err(e) => {
+                    log::write(&format!("stopped: {e}"));
+                    ExitCode::FAILURE
+                }
+            }
         }
     }
 }

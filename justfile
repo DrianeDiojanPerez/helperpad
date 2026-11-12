@@ -12,7 +12,7 @@ default:
 
 # Set up everything: tools, pad access, helperpad, extension
 install:
-    ./install.sh
+    ./tools/install-from-source.sh
 
 # Download and install the newest release
 update:

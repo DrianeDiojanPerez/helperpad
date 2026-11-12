@@ -34,7 +34,7 @@ build:
 
 .PHONY: install
 install:
-	@./install.sh
+	@./tools/install-from-source.sh
 
 .PHONY: update
 update:

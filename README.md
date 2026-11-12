@@ -12,9 +12,17 @@ Chrome starts `helperpad` as the native messaging host `com.topaz.sigplusextlite
 
 Built for the Topaz T-L460-HSB-R (USB ID `06a8:0043`).
 
-## Install from a release
+## Install
 
-Download the package for your system from the [releases page](https://github.com/DrianeDiojanPerez/helperpad/releases) and install it:
+```
+curl -fsSL https://raw.githubusercontent.com/DrianeDiojanPerez/helperpad/master/install.sh | sh
+```
+
+This downloads the newest release for your system, checks it against the release's checksum, and installs it with `apt-get`, `dnf`, `zypper`, or `pacman` (it asks for your sudo password). On other systems it puts the binary in `~/.local/bin` and sets up Chrome and the pad's udev rule itself. Then replug the pad, add the [Topaz SigPlusExtLite extension](https://chromewebstore.google.com/detail/topaz-sigplusextlite-exte/dhcpobccjkdnmibckgpejmbpmpembgco) in Chrome, and restart Chrome.
+
+### Install a package by hand
+
+Or download the package for your system from the [releases page](https://github.com/DrianeDiojanPerez/helperpad/releases) and install it:
 
 | System | Command |
 |---|---|
@@ -41,7 +49,7 @@ It does everything, skips whatever is already done, and asks for your sudo passw
 5. Opens the Chrome Web Store page for the Topaz SigPlusExtLite extension if it isn't installed.
 6. Prints a summary (`make status`).
 
-Then close Chrome completely and open it again. `./install.sh` and `just install` do the same thing. Run it again after you change the code; steps that are already done are skipped.
+Then close Chrome completely and open it again. `just install` does the same thing. Run it again after you change the code; steps that are already done are skipped.
 
 Tested on Arch and Ubuntu 24.04. On Ubuntu, use Google Chrome from Google's .deb (https://www.google.com/chrome/): Ubuntu's Chromium is a Snap, and its sandbox blocks helperpad. helperpad needs Rust 1.95 or newer; the script installs or updates it through rustup if needed.
 

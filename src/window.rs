@@ -7,13 +7,24 @@ use std::thread;
 use eframe::egui::{self, Color32, Key, Pos2, Rect, RichText, Sense, Shape, Stroke, Vec2};
 
 use crate::pad::{self, Ink, Point, X_MAX, X_MIN, Y_MAX, Y_MIN};
+use crate::update;
 
 pub enum Outcome {
     Accepted(Vec<Vec<Point>>),
     Cancelled,
 }
 
+#[derive(Clone)]
+enum Update {
+    None,
+    Available(String),
+    Installing(String),
+    Done(String),
+    Failed(String),
+}
+
 struct SigningWindow {
+    update: Arc<Mutex<Update>>,
     ink: Arc<Mutex<Ink>>,
     pad_error: Arc<Mutex<Option<String>>>,
     min_points: usize,
@@ -41,8 +52,11 @@ pub fn run(device: PathBuf, min_points: usize) -> Result<Outcome, String> {
             let ink = Arc::new(Mutex::new(Ink::default()));
             let pad_error = Arc::new(Mutex::new(None));
             spawn_reader(device, ink.clone(), pad_error.clone(), cc.egui_ctx.clone());
+            let update = Arc::new(Mutex::new(Update::None));
+            spawn_update_check(update.clone(), cc.egui_ctx.clone());
 
             Ok(Box::new(SigningWindow {
+                update,
                 ink,
                 pad_error,
                 min_points,
@@ -76,7 +90,62 @@ fn spawn_reader(
     });
 }
 
+fn spawn_update_check(update: Arc<Mutex<Update>>, ctx: egui::Context) {
+    thread::spawn(move || {
+        if let Some(version) = update::available() {
+            *update.lock().unwrap() = Update::Available(version);
+            ctx.request_repaint();
+        }
+    });
+}
+
+fn spawn_update(version: String, update: Arc<Mutex<Update>>, ctx: egui::Context) {
+    *update.lock().unwrap() = Update::Installing(version.clone());
+
+    thread::spawn(move || {
+        let result = update::install(&version, &|_| {});
+        *update.lock().unwrap() = match result {
+            Ok(()) => Update::Done(version),
+            Err(e) => Update::Failed(e),
+        };
+        ctx.request_repaint();
+    });
+}
+
 impl SigningWindow {
+    fn update_bar(&self, ui: &mut egui::Ui) {
+        let update = self.update.lock().unwrap().clone();
+        if matches!(update, Update::None) {
+            return;
+        }
+
+        egui::Panel::top("update").show(ui, |ui| {
+            ui.add_space(6.0);
+            ui.horizontal(|ui| match update {
+                Update::None => {}
+                Update::Available(version) => {
+                    ui.label(RichText::new(format!("helperpad {version} is available (you have {})", update::CURRENT)).size(14.0));
+                    if ui.button(RichText::new("Update now").size(14.0)).clicked() {
+                        spawn_update(version, self.update.clone(), ui.ctx().clone());
+                    }
+                }
+                Update::Installing(version) => {
+                    ui.spinner();
+                    ui.label(RichText::new(format!("Updating to {version}. You can keep signing.")).size(14.0));
+                }
+                Update::Done(version) => {
+                    let done = format!("Updated to {version}. Close Chrome completely and open it again to finish.");
+                    ui.label(RichText::new(done).size(14.0).color(Color32::from_rgb(60, 160, 80)));
+                }
+                Update::Failed(error) => {
+                    let failed = format!("Update failed: {error}");
+                    ui.label(RichText::new(failed).size(14.0).color(Color32::from_rgb(220, 60, 60)));
+                }
+            });
+            ui.add_space(6.0);
+        });
+    }
+
     fn finish(&self, ui: &egui::Ui, outcome: Outcome) {
         *self.outcome.borrow_mut() = outcome;
         ui.ctx().send_viewport_cmd(egui::ViewportCommand::Close);
@@ -93,6 +162,8 @@ impl eframe::App for SigningWindow {
         let (enter, escape) = ui.input(|i| (i.key_pressed(Key::Enter), i.key_pressed(Key::Escape)));
 
         let button = |text: &str| egui::Button::new(RichText::new(text).size(16.0)).min_size(Vec2::new(90.0, 34.0));
+
+        self.update_bar(ui);
 
         egui::Panel::bottom("toolbar").show(ui, |ui| {
             ui.add_space(8.0);

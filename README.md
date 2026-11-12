@@ -86,7 +86,7 @@ To find out about new releases, helperpad asks GitHub for the latest version num
 | Field | What helperpad sends | Based on |
 |---|---|---|
 | `imageData` | Base64 JPG or PNG (`imageFormat` 1 or 2), sized `imageX` × `imageY` | Topaz integration guide |
-| `sigString` | Topaz SigString as uppercase hex, in `sigCompressionMode` 0 (default) through 8 | `SigWriter` in SigPlus Java 2.68 |
+| `sigString` | Topaz SigString as uppercase hex, in `sigCompressionMode` 0 (default) through 8. With `encryptionMode` 1 (DES), 2 or 3 (SAFER), or 4 (DES with a SHA-256 receipt) it is encrypted with `encryptionKey` | `SigWriter` and `SigCrypt` in SigPlus Java 2.68 |
 | `rawData` | `"ENC"` (default): the `$VPAD$2.0$` blob with points AES-256-CBC encrypted and the key RSA-encrypted to eSign Emcee's SigExtract certificate. `"SIG"`: plain .sig text | `Capture.GetSignatureData` in Topaz.SigPlusExtLite.exe 3.2.17.2 |
 | `padInfo` | `Topaz T-L460` + a SHA-1 serial | Same |
 
@@ -94,8 +94,5 @@ Every `sigString` mode was checked by loading it into Topaz's own Java `SigPlus`
 
 ## Limits
 
-- `sigString` with `encryptionMode` 1–3 (DES or SAFER) comes back empty. Only clear text (mode 0) is supported.
 - The pad doesn't report its model number or serial over Linux HID, so `padInfo` and the rawData owner use a fixed stand-in (model `T-L460`, serial `helperpad`).
 - Windows builds its SigString with the SigPlus ActiveX control. helperpad follows the Java SDK's format, which Topaz describes as the same, but it hasn't been compared against a Windows-made SigString.
-- Custom signing windows, LCD pads, and GemView tablets aren't supported.
-- Works in Chrome, Chromium, and Firefox (also Zen, LibreWolf, Floorp, and Waterfox). Snap and Flatpak browsers are sandboxed and can't start helperpad.

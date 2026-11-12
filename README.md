@@ -44,7 +44,7 @@ Run `make status` to check that everything is in place.
 helperpad updates itself. Either way works:
 
 - **In the signing window:** when a newer release exists, a bar at the top says so. Press **Update now**. You can keep signing while it runs.
-- **In a terminal:** `helperpad update` (or `make update`). `helperpad update --check` only tells you whether a newer version exists, and `helperpad --version` prints the one you have.
+- **In a terminal:** `helperpad update` (or `make update`). `helperpad update --check` only tells you whether a newer version exists, and `helperpad version` prints the one you have.
 
 The update downloads the release from GitHub, checks it against the release's SHA-256 checksum, and installs it the same way helperpad was installed:
 
@@ -72,9 +72,7 @@ Every command also works with [`just`](https://github.com/casey/just): `just ins
 | `make update` | Download and install the newest release |
 | `make uninstall` | Remove the binary and the Chrome registration (keeps the log) |
 | `make status` | Show the binary, Chrome registration, extension, pad, udev rule, and log |
-| `make logs` | Show the last 50 log lines |
-| `make logs-follow` | Watch the log live while you sign (Ctrl+C to stop) |
-| `make logs-clear` | Empty the log |
+| `make logs` | Watch the log live while you sign (Ctrl+C to stop) |
 | `make window` | Open the signing window to test the pad |
 | `make check-sigstring` | Check a SigString with Topaz's library (`FILE=`, `MODE=`, `OUT=`) |
 | `make test` / `make lint` / `make build` | Tests, clippy, release build |

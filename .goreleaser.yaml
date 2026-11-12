@@ -31,6 +31,7 @@ archives:
       - README.md
       - packaging/70-topaz-sigpad.rules
       - packaging/com.topaz.sigplusextlite.win.2.json
+      - packaging/firefox/com.topaz.sigplusextlite.win.2.json
 
 nfpms:
   - id: packages
@@ -39,7 +40,7 @@ nfpms:
     maintainer: Driane Perez <DrianeDiojanPerez@users.noreply.github.com>
     homepage: https://github.com/DrianeDiojanPerez/helperpad
     description: |-
-      Topaz signature pad helper for Chrome on Linux.
+      Topaz signature pad helper for Chrome and Firefox on Linux.
       Stands in for Topaz's Windows-only SigPlusExtLite helper so websites can
       capture signatures from a Topaz T-L460-HSB-R pad.
     section: utils
@@ -51,6 +52,12 @@ nfpms:
         dst: /etc/opt/chrome/native-messaging-hosts/com.topaz.sigplusextlite.win.2.json
       - src: packaging/com.topaz.sigplusextlite.win.2.json
         dst: /etc/chromium/native-messaging-hosts/com.topaz.sigplusextlite.win.2.json
+      - src: packaging/firefox/com.topaz.sigplusextlite.win.2.json
+        dst: /usr/lib/mozilla/native-messaging-hosts/com.topaz.sigplusextlite.win.2.json
+      - src: packaging/firefox/com.topaz.sigplusextlite.win.2.json
+        dst: /usr/lib64/mozilla/native-messaging-hosts/com.topaz.sigplusextlite.win.2.json
+        # Only Fedora-style systems read lib64, and on Arch it is a link the package must not own.
+        packager: rpm
       - src: README.md
         dst: /usr/share/doc/helperpad/README.md
     scripts:
@@ -75,7 +82,7 @@ release:
 
     ## helperpad {{ .Tag }}
 
-    Topaz signature pads in Chrome on Linux. Already installed? Run `helperpad update`.
+    Topaz signature pads in Chrome and Firefox on Linux. Already installed? Run `helperpad update`.
 
     ```
     curl -fsSL https://raw.githubusercontent.com/DrianeDiojanPerez/helperpad/master/install.sh | sh

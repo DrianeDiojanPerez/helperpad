@@ -11,6 +11,8 @@ EXTENSION_ID=dhcpobccjkdnmibckgpejmbpmpembgco
 HOST_NAME=com.topaz.sigplusextlite.win.2
 BIN="$HOME/.local/bin/helperpad"
 STORE_URL="https://chromewebstore.google.com/detail/topaz-sigplusextlite-exte/$EXTENSION_ID"
+FIREFOX_EXTENSION_ID=sigplusextliteff@topazsystems.com
+FIREFOX_URL="https://addons.mozilla.org/firefox/addon/topaz-sigplusextlite-extension/"
 DEMO_URL="https://sigplusweb.com/sign_chrome_ff_sigplusextlite.html"
 MIN_RUST_MINOR=95
 RULES='SUBSYSTEM=="hidraw", ATTRS{idVendor}=="06a8", ATTRS{idProduct}=="0043", TAG+="uaccess"
@@ -124,6 +126,13 @@ for browser in google-chrome chromium; do
 EOF
     ok "Registered with Chrome: $manifest"
 done
+for dir in .mozilla .zen .librewolf .floorp .waterfox; do
+    [ -d "$HOME/$dir" ] || continue
+    manifest="$HOME/$dir/native-messaging-hosts/$HOST_NAME.json"
+    mkdir -p "$(dirname "$manifest")"
+    sed "s|/usr/bin/helperpad|$BIN|" "packaging/firefox/$HOST_NAME.json" > "$manifest"
+    ok "Registered with Firefox: $manifest"
+done
 
 step 4 "Checking the pad"
 dev=$(find_pad)
@@ -165,11 +174,20 @@ else
     ok "$STORE_URL"
     "$chrome" "$STORE_URL" >/dev/null 2>&1 &
 fi
+if compgen -G "$HOME/.mozilla" >/dev/null || compgen -G "$HOME/.zen" >/dev/null; then
+    if compgen -G "$HOME/.mozilla/firefox/*/extensions/$FIREFOX_EXTENSION_ID.xpi" >/dev/null \
+        || compgen -G "$HOME/.zen/*/extensions/$FIREFOX_EXTENSION_ID.xpi" >/dev/null; then
+        ok "Topaz SigPlusExtLite extension installed in Firefox"
+    else
+        ok "For Firefox, add the Topaz SigPlusExtLite extension from:"
+        ok "$FIREFOX_URL"
+    fi
+fi
 
 step 6 "Summary"
-make --no-print-directory status
+"$BIN" status
 echo
 echo "Done. Next:"
-echo "  1. Close Chrome completely and open it again."
+echo "  1. Close Chrome or Firefox completely and open it again."
 echo "  2. Sign on Topaz's demo page: $DEMO_URL"
-echo "  3. If something's off, run 'make status' and 'make logs'."
+echo "  3. If something's off, run 'helperpad status' and 'helperpad logs'."

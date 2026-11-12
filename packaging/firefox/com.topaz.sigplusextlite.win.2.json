@@ -1,0 +1,7 @@
+{
+  "name": "com.topaz.sigplusextlite.win.2",
+  "description": "helperpad: Topaz SigPlusExtLite host for Linux",
+  "path": "/usr/bin/helperpad",
+  "type": "stdio",
+  "allowed_extensions": ["sigplusextliteff@topazsystems.com"]
+}

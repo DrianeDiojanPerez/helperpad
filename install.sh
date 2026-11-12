@@ -7,6 +7,7 @@ REPO=DrianeDiojanPerez/helperpad
 HOST_NAME=com.topaz.sigplusextlite.win.2
 EXTENSION_ID=dhcpobccjkdnmibckgpejmbpmpembgco
 STORE_URL="https://chromewebstore.google.com/detail/topaz-sigplusextlite-exte/$EXTENSION_ID"
+FIREFOX_URL="https://addons.mozilla.org/firefox/addon/topaz-sigplusextlite-extension/"
 
 say() { printf '%s\n' "$*"; }
 fail() { say "helperpad install failed: $*" >&2; exit 1; }
@@ -34,6 +35,13 @@ install_from_archive() {
         mkdir -p "$(dirname "$manifest")"
         sed "s|/usr/bin/helperpad|$HOME/.local/bin/helperpad|" "$tmp/packaging/$HOST_NAME.json" > "$manifest"
         say "Registered with Chrome: $manifest"
+    done
+    for dir in .mozilla .zen .librewolf .floorp .waterfox; do
+        [ -d "$HOME/$dir" ] || continue
+        manifest="$HOME/$dir/native-messaging-hosts/$HOST_NAME.json"
+        mkdir -p "$(dirname "$manifest")"
+        sed "s|/usr/bin/helperpad|$HOME/.local/bin/helperpad|" "$tmp/packaging/firefox/$HOST_NAME.json" > "$manifest"
+        say "Registered with Firefox: $manifest"
     done
 
     say "Giving your user access to the pad (needs root)"
@@ -100,9 +108,10 @@ main() {
     say ""
     say "helperpad $version is installed. Next:"
     say "  1. Unplug the pad and plug it back in."
-    say "  2. Add the Topaz SigPlusExtLite extension in Chrome:"
-    say "     $STORE_URL"
-    say "  3. Close Chrome completely and open it again."
+    say "  2. Add the Topaz SigPlusExtLite extension:"
+    say "     Chrome:  $STORE_URL"
+    say "     Firefox: $FIREFOX_URL"
+    say "  3. Close the browser completely and open it again."
     say "Later, run 'helperpad update' to get new versions."
 }
 

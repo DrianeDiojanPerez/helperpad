@@ -4,6 +4,7 @@ mod manage;
 mod pad;
 mod rawdata;
 mod render;
+mod sigcrypt;
 mod sigstring;
 mod update;
 mod window;

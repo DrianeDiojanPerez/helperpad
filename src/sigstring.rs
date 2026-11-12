@@ -1,5 +1,5 @@
 //! Topaz SigString, matching `com.topaz.sigplus.util.SigWriter` in SigPlus Java 2.68
-//! with encryption mode 0 and no timestamp, annotation, pressure, or time data.
+//! with no timestamp, annotation, pressure, or time data. `sigcrypt` adds the encryption.
 
 use crate::pad::{Point, X_MAX, X_MIN, Y_MAX, Y_MIN};
 
@@ -7,14 +7,17 @@ const LOGICAL_X_SIZE: i32 = 2000;
 const LOGICAL_Y_SIZE: i32 = 600;
 const FILTER_POINTS: usize = 4;
 
-pub fn encode(strokes: &[Vec<Point>], compression_mode: u32) -> String {
+pub fn encode(strokes: &[Vec<Point>], compression_mode: u32) -> Vec<u8> {
     let strokes = logical_strokes(strokes);
-    let bytes = if compression_mode == 0 {
+    if compression_mode == 0 {
         uncompressed(&strokes)
     } else {
         compressed(&strokes, compression_mode as i32)
-    };
+    }
+}
 
+/// A SigString travels as uppercase hex.
+pub fn hex(bytes: &[u8]) -> String {
     bytes.iter().map(|b| format!("{b:02X}")).collect()
 }
 
@@ -138,7 +141,7 @@ mod tests {
 
     #[test]
     fn writes_uncompressed_text_with_filtered_logical_points() {
-        let hex = encode(&[stroke(&[(500.0, 400.0), (504.0, 408.0)])], 0);
+        let hex = hex(&encode(&[stroke(&[(500.0, 400.0), (504.0, 408.0)])], 0));
 
         assert_eq!(
             unhex(&hex),
@@ -148,14 +151,14 @@ mod tests {
 
     #[test]
     fn writes_compressed_deltas() {
-        let hex = encode(&[stroke(&[(500.0, 400.0), (504.0, 408.0)])], 1);
+        let hex = hex(&encode(&[stroke(&[(500.0, 400.0), (504.0, 408.0)])], 1));
 
         assert_eq!(hex, "010006006400320001020102010201020000");
     }
 
     #[test]
     fn splits_strokes_that_leave_the_signing_area() {
-        let hex = encode(&[stroke(&[(500.0, 400.0), (100.0, 400.0), (600.0, 400.0)])], 0);
+        let hex = hex(&encode(&[stroke(&[(500.0, 400.0), (100.0, 400.0), (600.0, 400.0)])], 0));
 
         assert!(unhex(&hex).starts_with("10\r\n2\r\n"));
     }

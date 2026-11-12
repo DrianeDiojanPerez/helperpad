@@ -10,6 +10,7 @@ use crate::log;
 use crate::pad::{self, Point};
 use crate::rawdata;
 use crate::render::{self, ImageOptions};
+use crate::sigcrypt;
 use crate::sigstring;
 
 /// Reported as the SDK version. The extension treats anything at 3.0 or above
@@ -123,16 +124,23 @@ fn integer(value: &Value) -> Option<u64> {
     value.as_u64().or_else(|| value.as_str()?.trim().parse().ok())
 }
 
-/// Only clear-text SigStrings are supported; DES and SAFER modes come back empty.
 fn sig_string(strokes: &[Vec<Point>], request: &Value) -> String {
+    let compression = integer(&request["sigCompressionMode"]).unwrap_or(0).min(8) as u32;
+    let clear = sigstring::encode(strokes, compression);
+
     let encryption = integer(&request["encryptionMode"]).unwrap_or(0);
-    if encryption != 0 {
-        log::write(&format!("sigString left empty: encryptionMode {encryption} is not supported"));
-        return String::new();
+    if encryption == 0 {
+        return sigstring::hex(&clear);
     }
 
-    let compression = integer(&request["sigCompressionMode"]).unwrap_or(0).min(8) as u32;
-    sigstring::encode(strokes, compression)
+    let key = request["encryptionKey"].as_str().unwrap_or_default();
+    match sigcrypt::encrypt(&clear, encryption, key) {
+        Some(encrypted) => sigstring::hex(&encrypted),
+        None => {
+            log::write(&format!("sigString left empty: encryptionMode {encryption} is not supported"));
+            String::new()
+        }
+    }
 }
 
 /// Topaz defaults to "ENC", the eSign Emcee encrypted blob; "SIG" is the plain .sig text.
@@ -217,6 +225,18 @@ mod tests {
         assert_eq!(&buffer[..4], &7u32.to_ne_bytes());
         assert_eq!(read_message(&mut buffer.as_slice()).unwrap(), Some(json!({ "a": 1 })));
         assert_eq!(read_message(&mut [].as_slice()).unwrap(), None);
+    }
+
+    #[test]
+    fn encrypts_the_sig_string_when_the_page_asks() {
+        let strokes = vec![vec![Point { x: 500.0, y: 400.0, t: 0 }, Point { x: 504.0, y: 408.0, t: 5 }]];
+        let clear = sig_string(&strokes, &json!({}));
+        let encrypted = sig_string(&strokes, &json!({ "encryptionMode": "1", "encryptionKey": "abc" }));
+
+        assert!(clear.starts_with("36"));
+        assert!(encrypted.starts_with("FFFFFFFF"));
+        assert_ne!(encrypted, sig_string(&strokes, &json!({ "encryptionMode": 1, "encryptionKey": "other" })));
+        assert_eq!(sig_string(&strokes, &json!({ "encryptionMode": 9 })), "");
     }
 
     #[test]

@@ -1,4 +1,4 @@
-<p align="center"><img src="assets/banner.png" alt="helperpad: Topaz signature pads in Chrome on Linux" width="100%"></p>
+<p align="center"><img src="assets/banner.png" alt="helperpad: Topaz signature pads in Chrome and Firefox on Linux" width="100%"></p>
 
 ## Install
 
@@ -6,7 +6,7 @@
 curl -fsSL https://raw.githubusercontent.com/DrianeDiojanPerez/helperpad/master/install.sh | sh
 ```
 
-This downloads the newest release for your system, checks it against the release's checksum, and installs it with `apt-get`, `dnf`, `zypper`, or `pacman` (it asks for your sudo password). On other systems it puts the binary in `~/.local/bin` and sets up Chrome and the pad's udev rule itself. Then replug the pad, add the [Topaz SigPlusExtLite extension](https://chromewebstore.google.com/detail/topaz-sigplusextlite-exte/dhcpobccjkdnmibckgpejmbpmpembgco) in Chrome, and restart Chrome.
+This downloads the newest release for your system, checks it against the release's checksum, and installs it with `apt-get`, `dnf`, `zypper`, or `pacman` (it asks for your sudo password). On other systems it puts the binary in `~/.local/bin` and sets up Chrome and the pad's udev rule itself. Then replug the pad, add the Topaz SigPlusExtLite extension for [Chrome](https://chromewebstore.google.com/detail/topaz-sigplusextlite-exte/dhcpobccjkdnmibckgpejmbpmpembgco) or [Firefox](https://addons.mozilla.org/firefox/addon/topaz-sigplusextlite-extension/), and restart the browser.
 
 ### Manual install
 
@@ -61,47 +61,6 @@ To find out about new releases, helperpad asks GitHub for the latest version num
 
 - Open Topaz's demo at https://sigplusweb.com/sign_chrome_ff_sigplusextlite.html, click **Sign**, sign on the pad, and press **OK**. The signature shows up on the page, with the SigString in the left box.
 
-## Make commands
-
-Every command also works with [`just`](https://github.com/casey/just): `just install`, `just logs`, and so on. The `justfile` stands on its own and doesn't need `make`. `just check-sigstring` takes plain arguments: `just check-sigstring ~/sigstring.txt 0 drawing.png`.
-
-| Command | What it does |
-|---|---|
-| `make` | List the commands |
-| `make install` | Set up everything: tools, pad access, helperpad, Chrome registration, extension check |
-| `make update` | Download and install the newest release |
-| `make uninstall` | Remove the binary and the Chrome registration (keeps the log) |
-| `make status` | Show the binary, Chrome registration, extension, pad, udev rule, and log |
-| `make logs` | Watch the log live while you sign (Ctrl+C to stop) |
-| `make window` | Open the signing window to test the pad |
-| `make check-sigstring` | Check a SigString with Topaz's library (`FILE=`, `MODE=`, `OUT=`) |
-| `make test` / `make lint` / `make build` | Tests, clippy, release build |
-
-## Logs and where things live
-
-| What | Where |
-|---|---|
-| Log | `~/.local/state/helperpad/helperpad.log` |
-| Program | `~/.local/bin/helperpad` |
-| Chrome registration | `~/.config/google-chrome/NativeMessagingHosts/com.topaz.sigplusextlite.win.2.json` (and the same under `chromium/`) |
-| Last update check | `~/.local/state/helperpad/update-check` |
-| Pad permissions | `/etc/udev/rules.d/70-topaz-sigpad.rules` |
-| Topaz SDK for `check-sigstring` | `~/.cache/helperpad/topaz-check/` (downloaded on first use) |
-
-Every line in the log has the local time, the helper's process ID, and what happened:
-
-```
-2026-11-12 09:47:23 [571829] started by chrome-extension://dhcpobccjkdnmibckgpejmbpmpembgco/
-2026-11-12 09:47:23 [571829] request SignatureCapture
-2026-11-12 09:47:31 [571829] response SignatureCapture: responseType=0 isSigned=true errorMsg=""
-```
-
-- `started by …` means Chrome launched the helper. Chrome keeps it running until the tab closes, so one process ID can cover many signatures.
-- `request …` is each command the website sent through the extension.
-- `response …` is what helperpad answered. `isSigned=true` means a signature went back to the page; `errorMsg` says why one didn't.
-- `updated from … to …` and `update to … failed: …` record updates.
-- `sigString left empty …` and `rawData left empty …` explain a missing field.
-
 ## Supported commands
 
 | Command | Response |
@@ -129,4 +88,4 @@ Every `sigString` mode was checked by loading it into Topaz's own Java `SigPlus`
 - The pad doesn't report its model number or serial over Linux HID, so `padInfo` and the rawData owner use a fixed stand-in (model `T-L460`, serial `helperpad`).
 - Windows builds its SigString with the SigPlus ActiveX control. helperpad follows the Java SDK's format, which Topaz describes as the same, but it hasn't been compared against a Windows-made SigString.
 - Custom signing windows, LCD pads, and GemView tablets aren't supported.
-- Chrome and Chromium only. Firefox uses a different host manifest and extension ID.
+- Works in Chrome, Chromium, and Firefox (also Zen, LibreWolf, Floorp, and Waterfox). Snap and Flatpak browsers are sandboxed and can't start helperpad.

@@ -1,5 +1,6 @@
 mod pad;
 mod render;
+mod sigstring;
 mod window;
 
 use std::env;

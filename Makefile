@@ -24,6 +24,9 @@ help:
 	@echo "  make test             run the tests"
 	@echo "  make lint             run clippy"
 	@echo "  make build            build without installing"
+	@echo "  make add-version      bump, commit, and tag a version (VERSION=1.2.3)"
+	@echo "  make dry-release      build every release package into dist/ without publishing"
+	@echo "  make release          publish the tagged version to GitHub (needs GITHUB_TOKEN)"
 
 .PHONY: setup
 setup:
@@ -102,3 +105,15 @@ test:
 .PHONY: lint
 lint:
 	@cargo clippy
+
+.PHONY: add-version
+add-version:
+	@./tools/add-version.sh $(VERSION)
+
+.PHONY: dry-release
+dry-release:
+	@goreleaser release --snapshot --clean
+
+.PHONY: release
+release:
+	@goreleaser release --clean

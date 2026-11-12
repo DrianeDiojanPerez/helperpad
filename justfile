@@ -101,3 +101,15 @@ lint:
 # Build without installing
 build:
     cargo build --release
+
+# Bump, commit, and tag a version, for example: just add-version 1.2.3
+add-version version:
+    ./tools/add-version.sh "{{version}}"
+
+# Build every release package into dist/ without publishing
+dry-release:
+    goreleaser release --snapshot --clean
+
+# Publish the tagged version to GitHub (needs GITHUB_TOKEN)
+release:
+    goreleaser release --clean

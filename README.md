@@ -34,10 +34,20 @@ This downloads the newest release for your system, checks it against the release
      "allowed_origins": ["chrome-extension://dhcpobccjkdnmibckgpejmbpmpembgco/"]
    }
    ```
-4. Install the [Topaz SigPlusExtLite extension](https://chromewebstore.google.com/detail/topaz-sigplusextlite-exte/dhcpobccjkdnmibckgpejmbpmpembgco) in Chrome.
-5. Close Chrome completely and open it again. Do this after every install, because a helper that's already running keeps the old version.
+4. For Firefox, save this as `~/.mozilla/native-messaging-hosts/com.topaz.sigplusextlite.win.2.json` (Zen uses `~/.zen/`, LibreWolf `~/.librewolf/`), again with your own home folder in `path`. Skip this step if you only use Chrome:
+   ```
+   {
+     "name": "com.topaz.sigplusextlite.win.2",
+     "description": "helperpad: Topaz SigPlusExtLite host for Linux",
+     "path": "/home/you/.local/bin/helperpad",
+     "type": "stdio",
+     "allowed_extensions": ["sigplusextliteff@topazsystems.com"]
+   }
+   ```
+5. Install the Topaz SigPlusExtLite extension for [Chrome](https://chromewebstore.google.com/detail/topaz-sigplusextlite-exte/dhcpobccjkdnmibckgpejmbpmpembgco) or [Firefox](https://addons.mozilla.org/firefox/addon/topaz-sigplusextlite-extension/).
+6. Close the browser completely and open it again. Do this after every install, because a helper that's already running keeps the old version.
 
-Run `make status` to check that everything is in place.
+Run `helperpad status` to check that everything is in place.
 
 ## Update
 

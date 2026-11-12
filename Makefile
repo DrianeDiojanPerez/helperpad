@@ -16,9 +16,7 @@ help:
 	@echo "  make update           download and install the newest release"
 	@echo "  make uninstall        remove the binary and the Chrome registration"
 	@echo "  make status           show what's installed and whether the pad is found"
-	@echo "  make logs             show the last 50 log lines"
-	@echo "  make logs-follow      watch the log live (Ctrl+C to stop)"
-	@echo "  make logs-clear       empty the log"
+	@echo "  make logs             watch the log live (Ctrl+C to stop)"
 	@echo "  make window           open the signing window to test the pad"
 	@echo "  make check-sigstring  check a SigString with Topaz's own library (FILE=path, MODE=0)"
 	@echo "  make test             run the tests"
@@ -45,7 +43,7 @@ update:
 uninstall:
 	@rm -fv $(BIN)
 	@for browser in $(BROWSERS); do rm -fv "$(HOME)/.config/$$browser/NativeMessagingHosts/$(HOST_NAME).json"; done
-	@echo "Logs kept in $(LOG). Run 'make logs-clear' or delete it to remove them."
+	@echo "Logs kept in $(LOG). Delete it to remove them."
 
 .PHONY: status
 status:
@@ -65,15 +63,7 @@ status:
 
 .PHONY: logs
 logs:
-	@test -f $(LOG) && tail -n 50 $(LOG) || echo "No log yet at $(LOG). It appears once Chrome starts helperpad."
-
-.PHONY: logs-follow
-logs-follow:
 	@mkdir -p $(dir $(LOG)) && touch $(LOG) && tail -f $(LOG)
-
-.PHONY: logs-clear
-logs-clear:
-	@: > $(LOG) 2>/dev/null; echo "Cleared $(LOG)"
 
 .PHONY: window
 window:

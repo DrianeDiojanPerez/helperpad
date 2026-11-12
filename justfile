@@ -24,7 +24,7 @@ uninstall:
     #!/usr/bin/env bash
     rm -fv "{{bin}}"
     for browser in {{browsers}}; do rm -fv "$HOME/.config/$browser/NativeMessagingHosts/{{host_name}}.json"; done
-    echo "Logs kept in {{log}}. Run 'just logs-clear' or delete it to remove them."
+    echo "Logs kept in {{log}}. Delete it to remove them."
 
 # Show what's installed and whether the pad is found
 status:
@@ -46,17 +46,9 @@ status:
     if [ -f "{{udev_rule}}" ]; then echo "udev rule:  {{udev_rule}}"; else echo "udev rule:  missing"; fi
     if [ -f "{{log}}" ]; then echo "log:        {{log}} ($(wc -l < "{{log}}") lines)"; else echo "log:        {{log}} (empty)"; fi
 
-# Show the last 50 log lines
-logs:
-    @if [ -f "{{log}}" ]; then tail -n 50 "{{log}}"; else echo "No log yet at {{log}}. It appears once Chrome starts helperpad."; fi
-
 # Watch the log live (Ctrl+C to stop)
-logs-follow:
+logs:
     @mkdir -p "$(dirname "{{log}}")" && touch "{{log}}" && tail -f "{{log}}"
-
-# Empty the log
-logs-clear:
-    @: > "{{log}}" 2>/dev/null; echo "Cleared {{log}}"
 
 # Open the signing window to test the pad
 window:

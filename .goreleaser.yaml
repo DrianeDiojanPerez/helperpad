@@ -1,0 +1,77 @@
+# yaml-language-server: $schema=https://goreleaser.com/static/schema.json
+version: 2
+
+project_name: helperpad
+
+before:
+  hooks:
+    - cargo fetch --locked
+    # nothing is built, tagged or published if the suite is unhappy
+    - cargo test --locked
+
+builds:
+  - id: linux
+    builder: rust
+    flags:
+      - --release
+    # The glibc suffix makes cargo-zigbuild link against glibc 2.31, so one binary
+    # runs on Ubuntu 20.04 and newer, Debian 11+, Fedora, and Arch.
+    targets:
+      - x86_64-unknown-linux-gnu.2.31
+      - aarch64-unknown-linux-gnu.2.31
+
+archives:
+  - formats: [tar.gz]
+    name_template: >-
+      {{ .ProjectName }}_
+      {{- title .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else }}{{ .Arch }}{{ end }}
+    files:
+      - README.md
+      - packaging/70-topaz-sigpad.rules
+      - packaging/com.topaz.sigplusextlite.win.2.json
+
+nfpms:
+  - id: packages
+    package_name: helperpad
+    formats: [deb, rpm, archlinux]
+    maintainer: Driane Perez <DrianeDiojanPerez@users.noreply.github.com>
+    homepage: https://github.com/DrianeDiojanPerez/helperpad
+    description: |-
+      Topaz signature pad helper for Chrome on Linux.
+      Stands in for Topaz's Windows-only SigPlusExtLite helper so websites can
+      capture signatures from a Topaz T-L460-HSB-R pad.
+    section: utils
+    bindir: /usr/bin
+    contents:
+      - src: packaging/70-topaz-sigpad.rules
+        dst: /usr/lib/udev/rules.d/70-topaz-sigpad.rules
+      - src: packaging/com.topaz.sigplusextlite.win.2.json
+        dst: /etc/opt/chrome/native-messaging-hosts/com.topaz.sigplusextlite.win.2.json
+      - src: packaging/com.topaz.sigplusextlite.win.2.json
+        dst: /etc/chromium/native-messaging-hosts/com.topaz.sigplusextlite.win.2.json
+      - src: README.md
+        dst: /usr/share/doc/helperpad/README.md
+    scripts:
+      postinstall: packaging/postinstall.sh
+    overrides:
+      deb:
+        dependencies: [libxkbcommon0, libegl1, libgl1]
+      rpm:
+        dependencies: [libxkbcommon, mesa-libEGL, mesa-libGL]
+      archlinux:
+        dependencies: [libxkbcommon, mesa]
+
+checksum:
+  name_template: checksums.txt
+
+changelog:
+  sort: asc
+
+release:
+  footer: >-
+
+    ---
+
+    Released by [GoReleaser](https://github.com/goreleaser/goreleaser).

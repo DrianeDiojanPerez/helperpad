@@ -12,6 +12,25 @@ Built for the Topaz T-L460-HSB-R (USB ID `06a8:0043`).
 
 ## Install
 
+Plug in the pad and run:
+
+```
+./setup.sh
+```
+
+It does everything, skips whatever is already done, and asks for your sudo password when it needs it:
+
+1. Installs missing build tools (C compiler, `make`), Rust (through rustup), and the window libraries, using pacman, apt, dnf, or zypper.
+2. Gives your user access to the pad with a udev rule. The pad needs no driver: the Linux kernel's built-in HID driver already runs it, but by default only root can read it.
+3. Builds helperpad, installs it, and registers it with Chrome (`make install`).
+4. Checks the pad is plugged in and readable, and waits up to 60 seconds for you to replug it if needed.
+5. Opens the Chrome Web Store page for the Topaz SigPlusExtLite extension if it isn't installed.
+6. Prints a summary (`make status`).
+
+Then close Chrome completely and open it again. `make setup` and `just setup` run the same script.
+
+### Manual install
+
 1. Give your user access to the pad (once, needs `sudo`):
    ```
    sudo tee /etc/udev/rules.d/70-topaz-sigpad.rules >/dev/null <<'EOF'

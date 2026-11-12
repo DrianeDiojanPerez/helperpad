@@ -1,3 +1,5 @@
+<p align="center"><img src="assets/banner.png" alt="helperpad: Topaz signature pads in Chrome on Linux" width="100%"></p>
+
 # helperpad
 
 A Linux stand-in for Topaz's Windows-only SigPlusExtLite helper. With it, websites that use the Topaz SigPlusExtLite browser extension can capture signatures from a Topaz HSB pad on Linux.

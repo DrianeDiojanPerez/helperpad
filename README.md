@@ -8,27 +8,6 @@ curl -fsSL https://raw.githubusercontent.com/DrianeDiojanPerez/helperpad/master/
 
 This downloads the newest release for your system, checks it against the release's checksum, and installs it with `apt-get`, `dnf`, `zypper`, or `pacman` (it asks for your sudo password). On other systems it puts the binary in `~/.local/bin` and sets up Chrome and the pad's udev rule itself. Then replug the pad, add the [Topaz SigPlusExtLite extension](https://chromewebstore.google.com/detail/topaz-sigplusextlite-exte/dhcpobccjkdnmibckgpejmbpmpembgco) in Chrome, and restart Chrome.
 
-## Install from source
-
-Plug in the pad and run:
-
-```
-make install
-```
-
-It does everything, skips whatever is already done, and asks for your sudo password when it needs it:
-
-1. Installs missing build tools (C compiler, `make`), Rust (through rustup), and the window libraries, using pacman, apt, dnf, or zypper.
-2. Gives your user access to the pad with a udev rule. The pad needs no driver: the Linux kernel's built-in HID driver already runs it, but by default only root can read it.
-3. Builds helperpad, installs it to `~/.local/bin/helperpad`, and registers it with Chrome.
-4. Checks the pad is plugged in and readable, and waits up to 60 seconds for you to replug it if needed.
-5. Opens the Chrome Web Store page for the Topaz SigPlusExtLite extension if it isn't installed.
-6. Prints a summary (`make status`).
-
-Then close Chrome completely and open it again. `just install` does the same thing. Run it again after you change the code; steps that are already done are skipped.
-
-Tested on Arch and Ubuntu 24.04. On Ubuntu, use Google Chrome from Google's .deb (https://www.google.com/chrome/): Ubuntu's Chromium is a Snap, and its sandbox blocks helperpad. helperpad needs Rust 1.95 or newer; the script installs or updates it through rustup if needed.
-
 ### Manual install
 
 1. Give your user access to the pad (once, needs `sudo`):

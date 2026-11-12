@@ -13,6 +13,7 @@ help:
 	@echo "helperpad: Topaz signature pad helper for Chrome on Linux"
 	@echo ""
 	@echo "  make install          set up everything: tools, pad access, helperpad, extension"
+	@echo "  make update           download and install the newest release"
 	@echo "  make uninstall        remove the binary and the Chrome registration"
 	@echo "  make status           show what's installed and whether the pad is found"
 	@echo "  make logs             show the last 50 log lines"
@@ -34,6 +35,11 @@ build:
 .PHONY: install
 install:
 	@./install.sh
+
+.PHONY: update
+update:
+	@test -x $(BIN) || { echo "Run make install first."; exit 1; }
+	@$(BIN) update
 
 .PHONY: uninstall
 uninstall:

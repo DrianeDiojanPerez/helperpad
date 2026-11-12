@@ -14,6 +14,11 @@ default:
 install:
     ./install.sh
 
+# Download and install the newest release
+update:
+    @test -x "{{bin}}" || { echo "Run just install first."; exit 1; }
+    @"{{bin}}" update
+
 # Remove the binary and the Chrome registration
 uninstall:
     #!/usr/bin/env bash

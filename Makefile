@@ -13,7 +13,7 @@ help:
 	@echo "  make status           show what's installed and whether the pad is found"
 	@echo "  make logs             watch the log live (Ctrl+C to stop)"
 	@echo "  make window           open the signing window to test the pad"
-	@echo "  make check-sigstring  check a SigString with Topaz's own library (FILE=path, MODE=0)"
+	@echo "  make check-sigstring  check a SigString with Topaz's own library (FILE=, MODE=, ENC=, KEY=)"
 	@echo "  make test             run the tests"
 	@echo "  make lint             run clippy"
 	@echo "  make build            build without installing"
@@ -55,7 +55,7 @@ window:
 
 .PHONY: check-sigstring
 check-sigstring:
-	@./tools/check-sigstring.sh $(or $(FILE),-) $(or $(MODE),0) $(OUT)
+	@ENCRYPTION=$(or $(ENC),0) KEY='$(KEY)' ./tools/check-sigstring.sh $(or $(FILE),-) $(or $(MODE),0) $(OUT)
 
 .PHONY: test
 test:

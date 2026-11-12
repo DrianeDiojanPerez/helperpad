@@ -2,6 +2,7 @@
 # Loads a SigString into Topaz's own SigPlus Java library and reports what it reads back.
 # Usage: tools/check-sigstring.sh <file-with-sigstring-hex | -> [compression-mode] [output.png]
 # Pass "-" (or nothing) to paste the SigString instead, then press Ctrl+D.
+# For an encrypted SigString, set ENCRYPTION (1-4) and KEY to what the website sent.
 set -euo pipefail
 
 source=${1:--}

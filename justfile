@@ -34,8 +34,8 @@ window:
     @"{{bin}}" --sign
 
 # Check a SigString with Topaz's own library; file "-" pastes it instead
-check-sigstring file="-" mode="0" out="":
-    @./tools/check-sigstring.sh "{{file}}" "{{mode}}" {{ if out == "" { "" } else { quote(out) } }}
+check-sigstring file="-" mode="0" out="" enc="0" key="":
+    @ENCRYPTION={{quote(enc)}} KEY={{quote(key)}} ./tools/check-sigstring.sh "{{file}}" "{{mode}}" {{ if out == "" { "" } else { quote(out) } }}
 
 # Run the tests
 test:

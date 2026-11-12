@@ -9,11 +9,22 @@ public class Check {
         String hex = Files.readString(Path.of(args[0])).replaceFirst("^\\s*SigString:", "").replaceAll("\\s", "");
         int mode = Integer.parseInt(args[1]);
 
+        int encryption = Integer.parseInt(System.getenv().getOrDefault("ENCRYPTION", "0"));
+        String key = System.getenv().getOrDefault("KEY", "");
+
         SigPlus sig = new SigPlus();
         sig.setSigCompressionMode(mode);
+        sig.autoKeyStart();
+        sig.setAutoKeyData(key);
+        sig.autoKeyFinish();
+        sig.setEncryptionMode(encryption);
         sig.setSigString(hex);
 
         int strokes = sig.getNumberOfStrokes();
+        if (encryption != 0 && strokes == 0) {
+            System.out.println("Topaz SigPlus could not decrypt it: wrong key, wrong mode, or damaged data.");
+            System.exit(1);
+        }
         StringBuilder points = new StringBuilder();
         for (int i = 0; i < strokes; i++) {
             points.append(i == 0 ? "" : ",").append(sig.getNumPointsForStroke(i));

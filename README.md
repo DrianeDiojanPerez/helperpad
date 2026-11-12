@@ -74,6 +74,24 @@ Tested on Arch and Ubuntu 24.04. On Ubuntu, use Google Chrome from Google's .deb
 
 Run `make status` to check that everything is in place.
 
+## Update
+
+helperpad updates itself. Either way works:
+
+- **In the signing window:** when a newer release exists, a bar at the top says so. Press **Update now**. You can keep signing while it runs.
+- **In a terminal:** `helperpad update` (or `make update`). `helperpad update --check` only tells you whether a newer version exists, and `helperpad --version` prints the one you have.
+
+The update downloads the release from GitHub, checks it against the release's SHA-256 checksum, and installs it the same way helperpad was installed:
+
+| Installed with | What the update does |
+|---|---|
+| `make install` (binary in `~/.local/bin`) | Replaces the binary with the one from the release `tar.gz` |
+| `.deb`, `.rpm`, or Arch package | Downloads the matching package and installs it with `apt-get`, `dnf`, `zypper`, or `pacman`. This needs your password: `sudo` asks in a terminal, and a `pkexec` prompt appears when you update from the signing window |
+
+Afterwards close Chrome completely and open it again.
+
+To find out about new releases, helperpad asks GitHub for the latest version number at most once a day, when the signing window opens. It sends nothing else.
+
 ## Test
 
 - Open Topaz's demo at https://sigplusweb.com/sign_chrome_ff_sigplusextlite.html, click **Sign**, sign on the pad, and press **OK**. The signature shows up on the page, with the SigString in the left box.
@@ -88,6 +106,7 @@ Every command also works with [`just`](https://github.com/casey/just): `just ins
 |---|---|
 | `make` | List the commands |
 | `make install` | Set up everything: tools, pad access, helperpad, Chrome registration, extension check |
+| `make update` | Download and install the newest release |
 | `make uninstall` | Remove the binary and the Chrome registration (keeps the log) |
 | `make status` | Show the binary, Chrome registration, extension, pad, udev rule, and log |
 | `make logs` | Show the last 50 log lines |
@@ -104,6 +123,7 @@ Every command also works with [`just`](https://github.com/casey/just): `just ins
 | Log | `~/.local/state/helperpad/helperpad.log` |
 | Program | `~/.local/bin/helperpad` |
 | Chrome registration | `~/.config/google-chrome/NativeMessagingHosts/com.topaz.sigplusextlite.win.2.json` (and the same under `chromium/`) |
+| Last update check | `~/.local/state/helperpad/update-check` |
 | Pad permissions | `/etc/udev/rules.d/70-topaz-sigpad.rules` |
 | Topaz SDK for `check-sigstring` | `~/.cache/helperpad/topaz-check/` (downloaded on first use) |
 
@@ -118,6 +138,7 @@ Every line in the log has the local time, the helper's process ID, and what happ
 - `started by …` means Chrome launched the helper. Chrome keeps it running until the tab closes, so one process ID can cover many signatures.
 - `request …` is each command the website sent through the extension.
 - `response …` is what helperpad answered. `isSigned=true` means a signature went back to the page; `errorMsg` says why one didn't.
+- `updated from … to …` and `update to … failed: …` record updates.
 - `sigString left empty …` and `rawData left empty …` explain a missing field.
 
 ## Supported commands
@@ -157,6 +178,7 @@ Start with `make status`, then `make logs`.
 - **"could not open the signing window: No such file or directory":** a helper from before your last `make install` is still running. Restart Chrome.
 - **"No Topaz signature pad found":** the pad isn't plugged in. Check `lsusb | grep 06a8`.
 - **"Can't read the pad" or `make status` says no access:** the udev rule is missing or not applied. Run `make install`, then replug the pad.
+- **"Update failed" in the signing window:** run `helperpad update` in a terminal to see the full output. For a package install the window needs a polkit agent for the password prompt; without one, the terminal is the way.
 - **Page says the extension isn't installed:** install it from the link in Manual install and reload the page.
 
 ## Releasing

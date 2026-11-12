@@ -70,8 +70,13 @@ changelog:
   sort: asc
 
 release:
+  header: |
+    ## helperpad {{ .Tag }}
+
+    Topaz signature pads in Chrome on Linux. Already installed? Run `helperpad update`.
+
   footer: >-
 
     ---
 
-    Released by [GoReleaser](https://github.com/goreleaser/goreleaser).
+    Made by [Driane Perez](https://github.com/DrianeDiojanPerez).

@@ -77,8 +77,12 @@ release:
 
     Topaz signature pads in Chrome on Linux. Already installed? Run `helperpad update`.
 
+    ```
+    curl -fsSL https://raw.githubusercontent.com/DrianeDiojanPerez/helperpad/master/install.sh | sh
+    ```
+
   footer: >-
 
     ---
 
-    Made by [Driane Perez](https://github.com/DrianeDiojanPerez).
+    <img src="https://github.com/DrianeDiojanPerez.png?size=48" width="20" height="20" align="absmiddle" alt=""> Made by [Driane Perez](https://github.com/DrianeDiojanPerez).

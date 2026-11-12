@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="360" viewBox="0 0 1280 360">
+  <rect width="1280" height="360" rx="28" fill="#f5f5f7"/>
+
+  <g font-family="'Adwaita Sans', 'Inter', 'Helvetica Neue', sans-serif">
+    <text x="88" y="168" font-weight="700" font-size="88" letter-spacing="-3.5" fill="#1d1d1f">helperpad</text>
+    <text x="92" y="216" font-weight="500" font-size="27" letter-spacing="-0.4" fill="#6e6e73">Topaz signature pads in Chrome on Linux.</text>
+    <text x="92" y="262" font-weight="500" font-size="19" letter-spacing="0" fill="#86868b">Works with the SigPlusExtLite extension.</text>
+  </g>
+
+  <g>
+    <rect x="704" y="70" width="496" height="220" rx="30" fill="#1d1d1f"/>
+    <rect x="724" y="90" width="456" height="160" rx="12" fill="#ffffff"/>
+    <line x1="752" y1="222" x2="1152" y2="222" stroke="#d2d2d7" stroke-width="2" stroke-linecap="round"/>
+    <circle cx="738" cy="270" r="4" fill="#30d158"/>
+    <text x="1178" y="276" text-anchor="end" font-family="'Adwaita Sans', 'Inter', sans-serif" font-weight="600" font-size="14" letter-spacing="0.6" fill="#86868b">T-L460</text>
+
+    <path d="M 764 198 C 780 122, 824 108, 830 150 C 835 192, 792 208, 802 168 C 813 126, 864 120, 872 158 C 877 186, 851 193, 862 164 C 875 133, 905 138, 911 164 C 916 186, 934 150, 956 150 C 978 150, 965 188, 988 181 C 1016 172, 1029 134, 1055 141 C 1077 148, 1051 186, 1081 177 C 1103 170, 1116 159, 1136 150"
+          fill="none" stroke="#1d1d1f" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <g transform="translate(1136 150) rotate(38)">
+      <path d="M 0 0 L 8 -20 L -8 -20 Z" fill="#1d1d1f"/>
+      <rect x="-8" y="-152" width="16" height="132" rx="8" fill="#ffffff" stroke="#d2d2d7" stroke-width="1.5"/>
+      <rect x="-8" y="-34" width="16" height="14" fill="#d2d2d7"/>
+    </g>
+  </g>
+</svg>

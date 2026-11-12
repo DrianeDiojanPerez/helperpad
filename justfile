@@ -10,6 +10,10 @@ udev_rule    := "/etc/udev/rules.d/70-topaz-sigpad.rules"
 default:
     @just --list --unsorted
 
+# Set up everything: tools, pad access, helperpad, extension
+setup:
+    ./setup.sh
+
 # Build, install, and register with Chrome
 install: build
     #!/usr/bin/env bash

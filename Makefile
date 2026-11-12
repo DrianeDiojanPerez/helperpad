@@ -12,6 +12,7 @@ UDEV_RULE    = /etc/udev/rules.d/70-topaz-sigpad.rules
 help:
 	@echo "helperpad: Topaz signature pad helper for Chrome on Linux"
 	@echo ""
+	@echo "  make setup            set up everything: tools, pad access, helperpad, extension"
 	@echo "  make install          build, install, and register with Chrome"
 	@echo "  make uninstall        remove the binary and the Chrome registration"
 	@echo "  make status           show what's installed and whether the pad is found"
@@ -23,6 +24,10 @@ help:
 	@echo "  make test             run the tests"
 	@echo "  make lint             run clippy"
 	@echo "  make build            build without installing"
+
+.PHONY: setup
+setup:
+	@./setup.sh
 
 .PHONY: build
 build:

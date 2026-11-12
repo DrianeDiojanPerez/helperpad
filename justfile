@@ -1,10 +1,5 @@
 bin          := home_directory() / ".local/bin/helperpad"
 log          := env("XDG_STATE_HOME", home_directory() / ".local/state") / "helperpad/helperpad.log"
-host_name    := "com.topaz.sigplusextlite.win.2"
-extension_id := "dhcpobccjkdnmibckgpejmbpmpembgco"
-store_url    := "https://chromewebstore.google.com/detail/topaz-sigplusextlite-exte/" + extension_id
-browsers     := "google-chrome chromium"
-udev_rule    := "/etc/udev/rules.d/70-topaz-sigpad.rules"
 
 # List the commands
 default:
@@ -19,32 +14,15 @@ update:
     @test -x "{{bin}}" || { echo "Run just install first."; exit 1; }
     @"{{bin}}" update
 
-# Remove the binary and the Chrome registration
+# Remove helperpad and its browser registration
 uninstall:
-    #!/usr/bin/env bash
-    rm -fv "{{bin}}"
-    for browser in {{browsers}}; do rm -fv "$HOME/.config/$browser/NativeMessagingHosts/{{host_name}}.json"; done
-    echo "Logs kept in {{log}}. Delete it to remove them."
+    @test -x "{{bin}}" || { echo "helperpad isn't installed."; exit 1; }
+    @"{{bin}}" uninstall --yes
 
 # Show what's installed and whether the pad is found
 status:
-    #!/usr/bin/env bash
-    if [ -x "{{bin}}" ]; then echo "binary:     {{bin}}"; else echo "binary:     not installed (run just install)"; fi
-    for browser in {{browsers}}; do
-        f="$HOME/.config/$browser/NativeMessagingHosts/{{host_name}}.json"
-        [ -f "$f" ] && echo "chrome:     registered ($f)"
-    done
-    if ls -d "$HOME"/.config/google-chrome/*/Extensions/{{extension_id}} >/dev/null 2>&1; then
-        echo "extension:  installed"
-    else
-        echo "extension:  not found in Chrome ({{store_url}})"
-    fi
-    dev=$(grep -l 000006A8 /sys/class/hidraw/*/device/uevent 2>/dev/null | head -1 | cut -d/ -f5)
-    if [ -z "$dev" ]; then echo "pad:        not plugged in"
-    elif [ -r "/dev/$dev" ]; then echo "pad:        /dev/$dev (readable)"
-    else echo "pad:        /dev/$dev (no access: udev rule missing, replug the pad)"; fi
-    if [ -f "{{udev_rule}}" ]; then echo "udev rule:  {{udev_rule}}"; else echo "udev rule:  missing"; fi
-    if [ -f "{{log}}" ]; then echo "log:        {{log}} ($(wc -l < "{{log}}") lines)"; else echo "log:        {{log}} (empty)"; fi
+    @test -x "{{bin}}" || { echo "Not installed. Run just install first."; exit 1; }
+    @"{{bin}}" status
 
 # Watch the log live (Ctrl+C to stop)
 logs:

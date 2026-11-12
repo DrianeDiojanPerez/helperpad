@@ -17,14 +17,14 @@ const CHECK_EVERY: Duration = Duration::from_secs(24 * 60 * 60);
 const MAX_DOWNLOAD: u64 = 200 * 1024 * 1024;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
-enum Package {
+pub enum Package {
     Deb,
     Rpm,
     Arch,
 }
 
 #[derive(Debug, PartialEq)]
-enum Install {
+pub enum Install {
     Binary(PathBuf),
     Package(Package),
 }
@@ -186,7 +186,7 @@ fn hex(bytes: &[u8]) -> String {
 
 /// A binary a package manager owns has to be updated through it, or the next package
 /// upgrade would trip over files it doesn't recognise.
-fn install_kind(target: &Path) -> Install {
+pub fn install_kind(target: &Path) -> Install {
     let owns = |program: &str, args: &[&str]| {
         Command::new(program)
             .args(args)
@@ -253,7 +253,7 @@ fn install_package(package: Package, name: &str, file: &[u8]) -> Result<(), Stri
     result
 }
 
-fn run_as_root(program: &str, args: &[&str], file: &Path) -> Result<(), String> {
+pub fn run_as_root(program: &str, args: &[&str], target: &Path) -> Result<(), String> {
     let in_terminal = unsafe { libc::isatty(0) } == 1;
     let mut command = if unsafe { libc::geteuid() } == 0 {
         Command::new(program)
@@ -263,7 +263,7 @@ fn run_as_root(program: &str, args: &[&str], file: &Path) -> Result<(), String> 
         } else if on_path("pkexec") {
             "pkexec"
         } else {
-            return Err("installing the package needs root; run `helperpad update` in a terminal".to_string());
+            return Err("this needs root; run the command in a terminal".to_string());
         };
         let mut command = Command::new(elevate);
         command.arg(program);
@@ -273,7 +273,7 @@ fn run_as_root(program: &str, args: &[&str], file: &Path) -> Result<(), String> 
     // The signing window's stdout carries the signature to the host, so tool output goes to stderr.
     let status = command
         .args(args)
-        .arg(file)
+        .arg(target)
         .stdin(if in_terminal { Stdio::inherit() } else { Stdio::null() })
         .stdout(io::stderr())
         .status()
@@ -282,11 +282,11 @@ fn run_as_root(program: &str, args: &[&str], file: &Path) -> Result<(), String> 
     if status.success() {
         Ok(())
     } else {
-        Err(format!("{program} stopped with {status}; run `helperpad update` in a terminal to see why"))
+        Err(format!("{program} stopped with {status}; run the command in a terminal to see why"))
     }
 }
 
-fn on_path(program: &str) -> bool {
+pub fn on_path(program: &str) -> bool {
     std::env::var_os("PATH")
         .is_some_and(|paths| std::env::split_paths(&paths).any(|dir| dir.join(program).is_file()))
 }

@@ -6,8 +6,6 @@
 curl -fsSL https://raw.githubusercontent.com/DrianeDiojanPerez/helperpad/master/install.sh | sh
 ```
 
-This downloads the newest release for your system, checks it against the release's checksum, and installs it with `apt-get`, `dnf`, `zypper`, or `pacman` (it asks for your sudo password). On other systems it puts the binary in `~/.local/bin` and sets up Chrome and the pad's udev rule itself. Then replug the pad, add the Topaz SigPlusExtLite extension for [Chrome](https://chromewebstore.google.com/detail/topaz-sigplusextlite-exte/dhcpobccjkdnmibckgpejmbpmpembgco) or [Firefox](https://addons.mozilla.org/firefox/addon/topaz-sigplusextlite-extension/), and restart the browser.
-
 ### Manual install
 
 1. Give your user access to the pad (once, needs `sudo`):
@@ -51,21 +49,11 @@ Run `helperpad status` to check that everything is in place.
 
 ## Update
 
-helperpad updates itself. Either way works:
+```
+helperpad update
+```
 
-- **In the signing window:** when a newer release exists, a bar at the top says so. Press **Update now**. You can keep signing while it runs.
-- **In a terminal:** `helperpad update` (or `make update`). `helperpad update --check` only tells you whether a newer version exists, and `helperpad version` prints the one you have.
-
-The update downloads the release from GitHub, checks it against the release's SHA-256 checksum, and installs it the same way helperpad was installed:
-
-| Installed with | What the update does |
-|---|---|
-| `make install` (binary in `~/.local/bin`) | Replaces the binary with the one from the release `tar.gz` |
-| `.deb`, `.rpm`, or Arch package | Downloads the matching package and installs it with `apt-get`, `dnf`, `zypper`, or `pacman`. This needs your password: `sudo` asks in a terminal, and a `pkexec` prompt appears when you update from the signing window |
-
-Afterwards close Chrome completely and open it again.
-
-To find out about new releases, helperpad asks GitHub for the latest version number at most once a day, when the signing window opens. It sends nothing else.
+Or press **Update now** in the signing window when it says a newer release exists. Then close the browser completely and open it again.
 
 ## Test
 
@@ -74,7 +62,8 @@ To find out about new releases, helperpad asks GitHub for the latest version num
 ## Docs
 
 - [How it works](docs/how-it-works.md)
-- [Other ways to install](docs/install.md): a package by hand, or from source
+- [Installing](docs/install.md): what the installer does, a package by hand, or from source
+- [Updating](docs/update.md): what an update does
 - [Commands](docs/commands.md): `helperpad` and `make`
 - [Logs and where things live](docs/logs.md)
 - [Troubleshooting](docs/troubleshooting.md)

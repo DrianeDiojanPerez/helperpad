@@ -3,6 +3,7 @@ name = "helperpad"
 version = "0.5.4"
 edition = "2024"
 rust-version = "1.95"
+license = "MIT"
 
 [dependencies]
 aes = "0.8"

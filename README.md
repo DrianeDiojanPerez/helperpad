@@ -1,12 +1,29 @@
 <p align="center"><img src="assets/banner.png" alt="helperpad: Topaz signature pads in Chrome and Firefox on Linux" width="100%"></p>
 
+| Section | What's there |
+|---|---|
+| [Install](#install) | One line that installs everything |
+| [Update](#update) | Get the newest version |
+| [Manual install](#manual-install) | The same setup by hand |
+| [Test](#test) | Try a signature on Topaz's demo page |
+| [Docs](#docs) | Commands, logs, troubleshooting, and more |
+| [License](#license) | MIT |
+
 ## Install
 
 ```
 curl -fsSL https://raw.githubusercontent.com/DrianeDiojanPerez/helperpad/master/install.sh | sh
 ```
 
-### Manual install
+## Update
+
+```
+helperpad update
+```
+
+Or press **Update now** in the signing window when it says a newer release exists. Then close the browser completely and open it again.
+
+## Manual install
 
 1. Give your user access to the pad (once, needs `sudo`):
    ```
@@ -46,14 +63,6 @@ curl -fsSL https://raw.githubusercontent.com/DrianeDiojanPerez/helperpad/master/
 6. Close the browser completely and open it again. Do this after every install, because a helper that's already running keeps the old version.
 
 Run `helperpad status` to check that everything is in place.
-
-## Update
-
-```
-helperpad update
-```
-
-Or press **Update now** in the signing window when it says a newer release exists. Then close the browser completely and open it again.
 
 ## Test
 

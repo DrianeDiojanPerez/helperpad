@@ -95,3 +95,7 @@ The `sigString` is byte for byte what Topaz's Windows SigPlus control writes. Th
 ## Limits
 
 - The pad doesn't report its model number or serial over Linux HID, so `padInfo` and the rawData owner use a fixed stand-in (model `T-L460`, serial `helperpad`).
+
+## License
+
+MIT. See [LICENSE](LICENSE).

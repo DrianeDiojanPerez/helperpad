@@ -1,7 +1,9 @@
 use std::fs;
-use std::io::Write;
+use std::io::{ErrorKind, Write};
 use std::path::{Path, PathBuf};
 use std::process::{Command, Output, Stdio};
+use std::thread;
+use std::time::Duration;
 
 use serde_json::{Value, json};
 
@@ -22,16 +24,24 @@ fn fresh_home(test: &str) -> PathBuf {
 }
 
 fn helperpad(binary: &Path, home: &Path, args: &[&str], input: &[u8]) -> Output {
-    let mut child = Command::new(binary)
-        .args(args)
-        .env("HOME", home)
-        .env_remove("XDG_CONFIG_HOME")
-        .env_remove("XDG_STATE_HOME")
-        .stdin(Stdio::piped())
-        .stdout(Stdio::piped())
-        .stderr(Stdio::piped())
-        .spawn()
-        .unwrap();
+    let mut child = loop {
+        let spawned = Command::new(binary)
+            .args(args)
+            .env("HOME", home)
+            .env_remove("XDG_CONFIG_HOME")
+            .env_remove("XDG_STATE_HOME")
+            .stdin(Stdio::piped())
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped())
+            .spawn();
+
+        // A test running beside this one can fork while a fresh copy of the binary is still
+        // open for writing, and Linux refuses to run it until that fork lets go.
+        match spawned {
+            Err(e) if e.kind() == ErrorKind::ExecutableFileBusy => thread::sleep(Duration::from_millis(20)),
+            spawned => break spawned.unwrap(),
+        }
+    };
     child.stdin.take().unwrap().write_all(input).unwrap();
     child.wait_with_output().unwrap()
 }

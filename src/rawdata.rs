@@ -21,8 +21,9 @@ const BLOB_ID: &str = "$VPAD$2.0$";
 const SIGN_WIDTH: i32 = 2000;
 const SIGN_HEIGHT: i32 = 600;
 
-/// helperpad is built for this one pad. Linux HID can't read its model number or serial,
-/// so these stand in for SigPlus's `TabletModelNumber()` and `TabletSerialNumber()`.
+/// The T-L460-HSB-R has no USB serial and stays silent when asked for its model and
+/// serial (Topaz's command 0), so these stand in for SigPlus's `TabletModelNumber()`
+/// and `TabletSerialNumber()`.
 const PAD_MODEL: &str = "T-L460";
 const PAD_SERIAL: &str = "helperpad";
 

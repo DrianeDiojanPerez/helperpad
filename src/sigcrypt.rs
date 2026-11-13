@@ -217,6 +217,19 @@ mod tests {
         }
     }
 
+    /// The Windows SigPlus control wrote this for the same points, key, and mode.
+    #[test]
+    fn matches_the_windows_control() {
+        let mut clear = b"2\r\n1\r\n10 20\r\n30 40\r\n0\r\n".to_vec();
+        clear.extend([0; 34]);
+
+        assert_eq!(
+            hex(&encrypt(&clear, 1, KEY).unwrap()),
+            "FFFFFFFF9E362B620800000007000000D8EB2A4D49F408D1357A882216C8CEEC481AFD9B7113FB02\
+             BACFEF6141E44A90BACFEF6141E44A90BACFEF6141E44A90BACFEF6141E44A90BACFEF6141E44A90"
+        );
+    }
+
     #[test]
     fn an_empty_key_still_encrypts() {
         let clear = b"2\r\n1\r\n10 20\r\n30 40\r\n0\r\n";

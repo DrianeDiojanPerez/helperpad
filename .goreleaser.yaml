@@ -29,6 +29,7 @@ archives:
       {{- else }}{{ .Arch }}{{ end }}
     files:
       - README.md
+      - LICENSE
       - packaging/70-topaz-sigpad.rules
       - packaging/com.topaz.sigplusextlite.win.2.json
       - packaging/firefox/com.topaz.sigplusextlite.win.2.json
@@ -39,6 +40,7 @@ nfpms:
     formats: [deb, rpm, archlinux]
     maintainer: Driane Perez <DrianeDiojanPerez@users.noreply.github.com>
     homepage: https://github.com/DrianeDiojanPerez/helperpad
+    license: MIT
     description: |-
       Topaz signature pad helper for Chrome and Firefox on Linux.
       Stands in for Topaz's Windows-only SigPlusExtLite helper so websites can

@@ -32,7 +32,11 @@ public class Check {
         System.out.println("strokes: " + strokes);
         System.out.println("points per stroke: " + points);
         System.out.println("total points: " + sig.numberOfTabletPoints());
-        System.out.println("round trip identical: " + sig.getSigString().equals(hex.toUpperCase()));
+        // The Windows control ends every SigString with an empty timestamp and annotation block.
+        boolean identical = sig.getSigString().equals(hex.toUpperCase());
+        sig.setSaveSigInfo(true);
+        identical = identical || sig.getSigString().equals(hex.toUpperCase());
+        System.out.println("round trip identical: " + identical);
 
         if (args.length > 2) {
             sig.setImageXSize(1000);

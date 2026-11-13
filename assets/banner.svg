@@ -3,7 +3,7 @@
 
   <g font-family="'Adwaita Sans', 'Inter', 'Helvetica Neue', sans-serif">
     <text x="88" y="168" font-weight="700" font-size="88" letter-spacing="-3.5" fill="#1d1d1f">helperpad</text>
-    <text x="92" y="216" font-weight="500" font-size="27" letter-spacing="-0.4" fill="#6e6e73">Topaz signature pads in Chrome and Firefox on Linux.</text>
+    <text x="92" y="216" font-weight="500" font-size="23" letter-spacing="-0.3" fill="#6e6e73">Topaz signature pads in Chrome and Firefox on Linux.</text>
     <text x="92" y="262" font-weight="500" font-size="19" letter-spacing="0" fill="#86868b">Works with the SigPlusExtLite extension.</text>
   </g>
 

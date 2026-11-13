@@ -1,13 +1,11 @@
 <p align="center"><img src="assets/banner.png" alt="helperpad: Topaz signature pads in Chrome and Firefox on Linux" width="100%"></p>
 
-| Section | What's there |
-|---|---|
-| [Install](#install) | One line that installs everything |
-| [Update](#update) | Get the newest version |
-| [Manual install](#manual-install) | The same setup by hand |
-| [Test](#test) | Try a signature on Topaz's demo page |
-| [Docs](#docs) | Commands, logs, troubleshooting, and more |
-| [License](#license) | MIT |
+- [Install](#install)
+- [Update](#update)
+- [Manual install](#manual-install)
+- [Test](#test)
+- [Docs](#docs)
+- [License](#license)
 
 ## Install
 

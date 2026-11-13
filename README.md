@@ -90,9 +90,8 @@ To find out about new releases, helperpad asks GitHub for the latest version num
 | `rawData` | `"ENC"` (default): the `$VPAD$2.0$` blob with points AES-256-CBC encrypted and the key RSA-encrypted to eSign Emcee's SigExtract certificate. `"SIG"`: plain .sig text | `Capture.GetSignatureData` in Topaz.SigPlusExtLite.exe 3.2.17.2 |
 | `padInfo` | `Topaz T-L460` + a SHA-1 serial | Same |
 
-Every `sigString` mode was checked by loading it into Topaz's own Java `SigPlus` class, which read back the same strokes and points, and a real signature from Topaz's demo page passed the same check. The `"SIG"` rawData loads there too. The `"ENC"` rawData can only be decrypted by eSign Emcee; tests check its layout by decrypting it with a test key.
+The `sigString` is byte for byte what Topaz's Windows SigPlus control writes. The real control (`SigPlus.ocx`) was run under Wine and its output compared with helperpad's for clear text and every encryption mode, at compression 0, 1, 2, 4, and 8: 50 of 50 were identical. Topaz's Java `SigPlus` class also reads them back with the same strokes and points, and a real signature from Topaz's demo page passed the same checks. The `"SIG"` rawData loads there too. The `"ENC"` rawData can only be decrypted by eSign Emcee; tests check its layout by decrypting it with a test key.
 
 ## Limits
 
 - The pad doesn't report its model number or serial over Linux HID, so `padInfo` and the rawData owner use a fixed stand-in (model `T-L460`, serial `helperpad`).
-- Windows builds its SigString with the SigPlus ActiveX control. helperpad follows the Java SDK's format, which Topaz describes as the same, but it hasn't been compared against a Windows-made SigString.

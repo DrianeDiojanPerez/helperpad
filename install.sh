@@ -8,9 +8,18 @@ HOST_NAME=com.topaz.sigplusextlite.win.2
 EXTENSION_ID=dhcpobccjkdnmibckgpejmbpmpembgco
 STORE_URL="https://chromewebstore.google.com/detail/topaz-sigplusextlite-exte/$EXTENSION_ID"
 FIREFOX_URL="https://addons.mozilla.org/firefox/addon/topaz-sigplusextlite-extension/"
+TEST_URL="https://sigplusweb.com/sign_chrome_ff_sigplusextlite.html"
+
+if [ -t 1 ] && [ -z "${NO_COLOR:-}" ]; then
+    bold=$(printf '\033[1m') green=$(printf '\033[1;32m') cyan=$(printf '\033[36m')
+    red=$(printf '\033[1;31m') plain=$(printf '\033[0m')
+else
+    bold='' green='' cyan='' red='' plain=''
+fi
 
 say() { printf '%s\n' "$*"; }
-fail() { say "helperpad install failed: $*" >&2; exit 1; }
+step() { say "${green}==>${plain} ${bold}$*${plain}"; }
+fail() { say "${red}helperpad install failed:${plain} $*" >&2; exit 1; }
 has() { command -v "$1" >/dev/null 2>&1; }
 
 as_root() {
@@ -27,24 +36,24 @@ as_root() {
 install_from_archive() {
     tar -xzf "$1" -C "$tmp"
     install -Dm755 "$tmp/helperpad" "$HOME/.local/bin/helperpad"
-    say "Installed $HOME/.local/bin/helperpad"
+    step "Installed $HOME/.local/bin/helperpad"
 
     for browser in google-chrome chromium; do
         [ -d "$HOME/.config/$browser" ] || continue
         manifest="$HOME/.config/$browser/NativeMessagingHosts/$HOST_NAME.json"
         mkdir -p "$(dirname "$manifest")"
         sed "s|/usr/bin/helperpad|$HOME/.local/bin/helperpad|" "$tmp/packaging/$HOST_NAME.json" > "$manifest"
-        say "Registered with Chrome: $manifest"
+        step "Registered with Chrome: $manifest"
     done
     for dir in .mozilla .zen .librewolf .floorp .waterfox; do
         [ -d "$HOME/$dir" ] || continue
         manifest="$HOME/$dir/native-messaging-hosts/$HOST_NAME.json"
         mkdir -p "$(dirname "$manifest")"
         sed "s|/usr/bin/helperpad|$HOME/.local/bin/helperpad|" "$tmp/packaging/firefox/$HOST_NAME.json" > "$manifest"
-        say "Registered with Firefox: $manifest"
+        step "Registered with Firefox: $manifest"
     done
 
-    say "Giving your user access to the pad (needs root)"
+    step "Giving your user access to the pad (needs root)"
     as_root install -Dm644 "$tmp/packaging/70-topaz-sigpad.rules" /etc/udev/rules.d/70-topaz-sigpad.rules
     if has udevadm; then
         as_root udevadm control --reload || true
@@ -83,7 +92,7 @@ main() {
     chmod 755 "$tmp"
     base="https://github.com/$REPO/releases/download/v$version"
 
-    say "Downloading helperpad $version ($file)"
+    step "Downloading helperpad $version ($file)"
     curl -fsSL -o "$tmp/$file" "$base/$file"
     curl -fsSL -o "$tmp/checksums.txt" "$base/checksums.txt"
 
@@ -91,7 +100,7 @@ main() {
     actual=$(sha256sum "$tmp/$file" | cut -d' ' -f1)
     [ -n "$expected" ] && [ "$expected" = "$actual" ] || fail "the download doesn't match its checksum."
 
-    say "Installing"
+    step "Installing"
     case "$file" in
         *.deb) as_root apt-get install -y "$tmp/$file" ;;
         *.rpm)
@@ -106,13 +115,15 @@ main() {
     esac
 
     say ""
-    say "helperpad $version is installed. Next:"
-    say "  1. Unplug the pad and plug it back in."
-    say "  2. Add the Topaz SigPlusExtLite extension:"
-    say "     Chrome:  $STORE_URL"
-    say "     Firefox: $FIREFOX_URL"
-    say "  3. Close the browser completely and open it again."
-    say "Later, run 'helperpad update' to get new versions."
+    say "${green}helperpad $version is installed.${plain} ${bold}Next:${plain}"
+    say "  ${bold}1.${plain} Unplug the pad and plug it back in."
+    say "  ${bold}2.${plain} Add the Topaz SigPlusExtLite extension:"
+    say "     Chrome:  ${cyan}$STORE_URL${plain}"
+    say "     Firefox: ${cyan}$FIREFOX_URL${plain}"
+    say "  ${bold}3.${plain} Close the browser completely and open it again."
+    say "  ${bold}4.${plain} Test it: open the page below, click Sign, sign on the pad, and press OK."
+    say "     ${cyan}$TEST_URL${plain}"
+    say "Later, run '${bold}helperpad update${plain}' to get new versions."
 }
 
 # Nothing runs until the whole script has arrived, so a cut-off download does nothing.

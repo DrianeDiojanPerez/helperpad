@@ -1,6 +1,14 @@
-# Other ways to install
+# Installing
 
-The one-line installer and the manual steps are in the [README](../README.md#install). This page covers the other two ways.
+## The one-line installer
+
+```
+curl -fsSL https://raw.githubusercontent.com/DrianeDiojanPerez/helperpad/master/install.sh | sh
+```
+
+This downloads the newest release for your system, checks it against the release's checksum, and installs it with `apt-get`, `dnf`, `zypper`, or `pacman` (it asks for your sudo password). On other systems it puts the binary in `~/.local/bin` and sets up Chrome, Firefox, and the pad's udev rule itself. Then replug the pad, add the Topaz SigPlusExtLite extension for [Chrome](https://chromewebstore.google.com/detail/topaz-sigplusextlite-exte/dhcpobccjkdnmibckgpejmbpmpembgco) or [Firefox](https://addons.mozilla.org/firefox/addon/topaz-sigplusextlite-extension/), and restart the browser.
+
+The manual steps are in the [README](../README.md#manual-install). The other two ways are below.
 
 ## Install a package by hand
 

@@ -1,5 +1,6 @@
 //! Topaz SigString, matching `com.topaz.sigplus.util.SigWriter` in SigPlus Java 2.68
-//! with no timestamp, annotation, pressure, or time data. `sigcrypt` adds the encryption.
+//! and byte for byte what the Windows SigPlus control writes: no pressure or time data,
+//! and an empty timestamp and annotation block at the end. `sigcrypt` adds the encryption.
 
 use crate::pad::{Point, X_MAX, X_MIN, Y_MAX, Y_MIN};
 
@@ -7,13 +8,22 @@ const LOGICAL_X_SIZE: i32 = 2000;
 const LOGICAL_Y_SIZE: i32 = 600;
 const FILTER_POINTS: usize = 4;
 
+/// `SigWriter.saveSigInfo` with nothing set: a length byte and eight shorts for the
+/// timestamp, then the same for the annotation. The Windows control always writes it.
+const EMPTY_SIG_INFO: [u8; 34] = [0; 34];
+
 pub fn encode(strokes: &[Vec<Point>], compression_mode: u32) -> Vec<u8> {
-    let strokes = logical_strokes(strokes);
-    if compression_mode == 0 {
-        uncompressed(&strokes)
+    write(&logical_strokes(strokes), compression_mode)
+}
+
+fn write(strokes: &[Vec<Logical>], compression_mode: u32) -> Vec<u8> {
+    let mut bytes = if compression_mode == 0 {
+        uncompressed(strokes)
     } else {
-        compressed(&strokes, compression_mode as i32)
-    }
+        compressed(strokes, compression_mode as i32)
+    };
+    bytes.extend(EMPTY_SIG_INFO);
+    bytes
 }
 
 /// A SigString travels as uppercase hex.
@@ -144,7 +154,7 @@ mod tests {
         let hex = hex(&encode(&[stroke(&[(500.0, 400.0), (504.0, 408.0)])], 0));
 
         assert_eq!(
-            unhex(&hex),
+            unhex(&hex).trim_end_matches('\0'),
             "6\r\n1\r\n100 50\r\n101 52\r\n102 54\r\n103 56\r\n104 58\r\n104 58\r\n0\r\n"
         );
     }
@@ -153,7 +163,19 @@ mod tests {
     fn writes_compressed_deltas() {
         let hex = hex(&encode(&[stroke(&[(500.0, 400.0), (504.0, 408.0)])], 1));
 
-        assert_eq!(hex, "010006006400320001020102010201020000");
+        assert_eq!(hex, format!("010006006400320001020102010201020000{}", "00".repeat(34)));
+    }
+
+    /// Expected values were written by Topaz's Windows SigPlus control for the same two points.
+    #[test]
+    fn matches_the_windows_control() {
+        let strokes = [vec![Logical { x: 10, y: 20, t: 0 }, Logical { x: 30, y: 40, t: 0 }]];
+
+        assert_eq!(
+            hex(&write(&strokes, 0)),
+            format!("320D0A310D0A31302032300D0A33302034300D0A300D0A{}", "00".repeat(34))
+        );
+        assert_eq!(hex(&write(&strokes, 1)), format!("010002000A0014001414{}", "00".repeat(34)));
     }
 
     #[test]

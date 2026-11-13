@@ -81,7 +81,7 @@ fn print_help() {
     println!("  {}          Print the version", name("version"));
     println!("  {}             Print this help", name("help"));
     println!();
-    println!("Chrome starts helperpad on its own when a website asks for a signature.");
+    println!("Chrome and Firefox start helperpad on their own when a website asks for a signature.");
     println!("{} {}", paint("2", "Log:"), log::path().display());
 }
 
